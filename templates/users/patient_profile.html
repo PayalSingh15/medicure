@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    }
+    .profile-container {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .profile-container:hover {
+        transform: scale(1.02);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+    }
+    .profile-avatar {
+        border: 4px solid white;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+    }
+    .profile-avatar:hover {
+        transform: rotate(5deg) scale(1.1);
+    }
+    .health-stat {
+        background: rgba(255,255,255,0.7);
+        border-radius: 15px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+    .health-stat:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-6">
+    <div class="profile-container w-full max-w-5xl mx-auto grid md:grid-cols-3 gap-8 p-8">
+        <!-- Profile Left Section -->
+        <div class="col-span-1 flex flex-col items-center">
+            <div class="relative">
+                <img 
+                    src="{{ user.profile_picture.url|default:'/static/images/account.png' }}" 
+                    alt="Profile Picture" 
+                    class="w-48 h-48 rounded-full profile-avatar object-cover"
+                >
+                <div class="absolute bottom-0 right-0 bg-blue-500 text-white rounded-full w-12 h-12 flex items-center justify-center cursor-pointer">
+                    <i class="fas fa-camera"></i>
+                </div>
+            </div>
+
+            <h2 class="text-3xl font-bold mt-6 text-gray-800">
+                {{ user.get_full_name }}
+            </h2>
+            <p class="text-gray-600 mt-2">
+                Patient ID: {{ user.unique_id }}
+            </p>
+
+            <div class="mt-6 w-full">
+                <button class="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition flex items-center justify-center">
+                    <i class="fas fa-edit mr-2"></i> Edit Profile
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Right Section -->
+        <div class="col-span-2 space-y-6">
+            <!-- Personal Information -->
+            <div class="bg-white rounded-2xl p-6 shadow-md">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-user-circle mr-3 text-blue-500"></i>Personal Information
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-gray-600">Email</p>
+                        <p class="font-semibold">{{ user.email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Phone</p>
+                        <p class="font-semibold">{{ user.phone_number|default:'Not Added' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Date of Birth</p>
+                        <p class="font-semibold">{{ user.date_of_birth|default:'Not Added' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-600">Blood Group</p>
+                        <p class="font-semibold">{{ user.blood_group|default:'Unknown' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Statistics -->
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="health-stat">
+                    <i class="fas fa-weight text-blue-500 text-3xl mr-4"></i>
+                    <div>
+                        <p class="text-gray-600">Weight</p>
+                        <p class="font-bold text-xl">{{ user.weight }} kg</p>
+                    </div>
+                </div>
+                <div class="health-stat">
+                    <i class="fas fa-heartbeat text-red-500 text-3xl mr-4"></i>
+                    <div>
+                        <p class="text-gray-600">Heart Rate</p>
+                        <p class="font-bold text-xl">{{ user.heart_rate }} bpm</p>
+                    </div>
+                </div>
+                <div class="health-stat">
+                    <i class="fas fa-running text-green-500 text-3xl mr-4"></i>
+                    <div>
+                        <p class="text-gray-600">Daily Steps</p>
+                        <p class="font-bold text-xl">{{ user.daily_steps }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical History -->
+            <div class="bg-white rounded-2xl p-6 shadow-md">
+                <h3 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-notes-medical mr-3 text-red-500"></i>Medical History
+                </h3>
+                {% if user.medical_history %}
+                    <ul class="space-y-2">
+                        {% for history in user.medical_history %}
+                            <li class="flex items-center">
+                                <i class="fas fa-notes-medical mr-3 text-gray-500"></i>
+                                <span>{{ history }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-gray-500">No medical history recorded</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Interactive profile picture upload
+    const profilePictureContainer = document.querySelector('.relative');
+    const profilePicture = profilePictureContainer.querySelector('img');
+    const cameraIcon = profilePictureContainer.querySelector('.bg-blue-500');
+
+    cameraIcon.addEventListener('click', function() {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.click();
+        
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePicture.src = e.target.result;
+                };
+                 reader.readAsDataURL(file);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

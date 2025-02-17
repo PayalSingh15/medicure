@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Dashboard - MediCure{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-blue-600">Doctor Dashboard</h1>
+        <p class="text-gray-600 mt-2">Manage your appointments and patient schedule</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Pending Appointments</h3>
+            <p class="text-3xl font-bold text-blue-600" id="pendingCount">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Today's Appointments</h3>
+            <p class="text-3xl font-bold text-green-600" id="todayCount">0</p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Appointments</h3>
+            <p class="text-3xl font-bold text-purple-600" id="totalCount">0</p>
+        </div>
+    </div>
+
+    <!-- Appointment Management Section -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h2 class="text-xl font-semibold">Appointments</h2>
+        </div>
+        
+        <!-- Filters -->
+        <div class="p-6 border-b bg-gray-50">
+            <div class="flex flex-wrap gap-4">
+                <select id="statusFilter" class="rounded-lg border-gray-300 text-gray-700">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+                <input type="date" id="dateFilter" class="rounded-lg border-gray-300">
+                <button onclick="refreshAppointments()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Appointments Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full" id="appointmentsTable">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Patient</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Date</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Time</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Status</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y" id="appointmentsBody">
+                    <!-- Appointments will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden p-8 text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p class="mt-2 text-gray-600">Loading appointments...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden p-8 text-center">
+            <p class="text-gray-600">No appointments found</p>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Global variables
+    let currentAppointments = [];
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function() {
+        refreshAppointments();
+    });
+
+    async function refreshAppointments() {
+        showLoading(true);
+        
+        try {
+            const status = document.getElementById('statusFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            const response = await fetch(`/appointments/manage/?status=${status}&date=${date}`, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+            
+            if (!response.ok) throw new Error('Failed to fetch appointments');
+            
+            const data = await response.json();
+            currentAppointments = data;
+            
+            updateStats(data);
+            renderAppointments(data);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to load appointments');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function updateStats(appointments) {
+        const pending = appointments.filter(a => a.status === 'pending').length;
+        const today = appointments.filter(a => isToday(new Date(a.date))).length;
+        
+        document.getElementById('pendingCount').textContent = pending;
+        document.getElementById('todayCount').textContent = today;
+        document.getElementById('totalCount').textContent = appointments.length;
+    }
+
+    function renderAppointments(appointments) {
+        const tbody = document.getElementById('appointmentsBody');
+        const emptyState = document.getElementById('emptyState');
+        
+        if (appointments.length === 0) {
+            tbody.innerHTML = '';
+            emptyState.classList.remove('hidden');
+            return;
+        }
+
+        emptyState.classList.add('hidden');
+        tbody.innerHTML = appointments.map(appointment => `
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${appointment.patient}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${formatDate(appointment.date)}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${formatTime(appointment.time)}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(appointment.status)}">
+                        ${appointment.status}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    ${getActionButtons(appointment)}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function updateAppointmentStatus(appointmentId, newStatus) {
+        try {
+            const response = await fetch(`/appointments/manage/${appointmentId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ status: newStatus })
+            });
+
+            if (!response.ok) throw new Error('Failed to update appointment');
+
+            await refreshAppointments();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to update appointment status');
+        }
+    }
+
+    // Utility functions
+    function showLoading(show) {
+        document.getElementById('loadingState').classList.toggle('hidden', !show);
+        document.getElementById('appointmentsTable').classList.toggle('hidden', show);
+    }
+
+    function isToday(date) {
+        const today = new Date();
+        return date.getDate() === today.getDate() &&
+               date.getMonth() === today.getMonth() &&
+               date.getFullYear() === today.getFullYear();
+    }
+
+    function formatDate(dateStr) {
+        return new Date(dateStr).toLocaleDateString();
+    }
+
+    function formatTime(timeStr) {
+        return timeStr;
+    }
+
+    function getStatusClass(status) {
+        const classes = {
+            pending: 'bg-yellow-100 text-yellow-800',
+            accepted: 'bg-green-100 text-green-800',
+            rejected: 'bg-red-100 text-red-800',
+            cancelled: 'bg-gray-100 text-gray-800'
+        };
+        return classes[status] || classes.pending;
+    }
+
+    function getActionButtons(appointment) {
+        if (appointment.status !== 'pending') return '';
+        
+        return `
+            <button onclick="updateAppointmentStatus(${appointment.id}, 'accepted')"
+                    class="text-green-600 hover:text-green-900 mr-3">
+                Accept
+            </button>
+            <button onclick="updateAppointmentStatus(${appointment.id}, 'rejected')"
+                    class="text-red-600 hover:text-red-900">
+                Reject
+            </button>
+        `;
+    }
+</script>
+{% endblock %}
+{% endblock %}

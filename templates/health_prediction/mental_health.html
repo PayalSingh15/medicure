@@ -1,0 +1,605 @@
+{% extends 'base.html' %}
+
+{% block title %}Mental Health Assessment - MediCure{% endblock %}
+
+{% block content %}
+<!-- Add required CDN links -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    /* Custom CSS */
+    :root {
+        --primary-color: #4F46E5;
+        --secondary-color: #818CF8;
+        --accent-color: #C7D2FE;
+        --success-color: #34D399;
+        --error-color: #F87171;
+        --text-primary: #1F2937;
+        --text-secondary: #4B5563;
+    }
+
+    .assessment-container {
+        background: linear-gradient(135deg, #EEF2FF 0%, #ffffff 100%);
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+        padding: 0 1rem;
+    }
+
+    .step-indicator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent-color);
+        z-index: 1;
+    }
+
+    .step-bubble {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid var(--accent-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    .step-bubble.active {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .step-bubble.completed {
+        background: var(--success-color);
+        border-color: var(--success-color);
+        color: white;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #E5E7EB;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        background: #F9FAFB;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--accent-color);
+        outline: none;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #4338CA;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: #E5E7EB;
+        color: var(--text-secondary);
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background: #D1D5DB;
+    }
+
+    .form-step {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .step-description {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+    }
+
+    .error-message {
+        color: var(--error-color);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .loading-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<div class="assessment-container">
+    <div class="form-card">
+        <h2 class="text-3xl font-bold text-center mb-8 animate__animated animate__fadeIn">Mental Health Assessment</h2>
+        
+        {% if messages %}
+        <div class="mb-6 animate__animated animate__fadeIn">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} mr-2"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="step-indicator">
+            <div class="step-bubble active" data-step="1">1</div>
+            <div class="step-bubble" data-step="2">2</div>
+            <div class="step-bubble" data-step="3">3</div>
+            <div class="step-bubble" data-step="4">4</div>
+        </div>
+
+        <form id="mentalHealthForm" method="post" action="{% url 'mental_health' %}" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Step 1: Mood & Energy -->
+            <div class="form-step active" id="step-1">
+                <div class="step-title">
+                    <i class="fas fa-sun"></i>
+                    Step 1: Mood & Energy
+                </div>
+                <p class="step-description">Help us understand your emotional state and energy levels.</p>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sadness">
+                        <i class="fas fa-frown mr-2"></i>Sadness Level:
+                    </label>
+                    <select name="sadness" id="sadness" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="euphoric">
+                        <i class="fas fa-smile-beam mr-2"></i>Euphoric Level:
+                    </label>
+                    <select name="euphoric" id="euphoric" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end mt-6">
+                    <button type="button" onclick="nextStep()" class="btn btn-primary">
+                        Next
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Sleep & Behavior -->
+            <div class="form-step" id="step-2">
+                <div class="step-title">
+                    <i class="fas fa-moon"></i>
+                    Step 2: Sleep & Behavior
+                </div>
+                <p class="step-description">Tell us about your sleep patterns and daily behaviors.</p>
+                
+                <div class="form-group">
+                    <label class="form-label" for="exhausted">
+                        <i class="fas fa-battery-quarter mr-2"></i>Exhaustion Level:
+                    </label>
+                    <select name="exhausted" id="exhausted" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sleep_dissorder">
+                        <i class="fas fa-bed mr-2"></i>Sleep Disorder:
+                    </label>
+                    <select name="sleep_dissorder" id="sleep_dissorder" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="mood_swing">
+                        <i class="fas fa-exchange-alt mr-2"></i>Mood Swings:
+                    </label>
+                    <select name="mood_swing" id="mood_swing" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="suicidal_thoughts">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Suicidal Thoughts:
+                    </label>
+                    <select name="suicidal_thoughts" id="suicidal_thoughts" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </button>
+                    <button type="button" onclick="nextStep()" class="btn btn-primary">
+                        Next
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Mental Health Symptoms -->
+            <div class="form-step" id="step-3">
+                <div class="step-title">
+                    <i class="fas fa-brain"></i>
+                    Step 3: Mental Health Symptoms
+                </div>
+                <p class="step-description">Help us understand any symptoms you may be experiencing.</p>
+                
+                <div class="form-group">
+                    <label class="form-label" for="anorxia">
+                        <i class="fas fa-utensils mr-2"></i>Do you experience Anorexia?
+                    </label>
+                    <select name="anorxia" id="anorxia" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="authority_respect">
+                        <i class="fas fa-user-tie mr-2"></i>Do you have issues with authority?
+                    </label>
+                    <select name="authority_respect" id="authority_respect" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="try_explanation">
+                        <i class="fas fa-comments mr-2"></i>Do you often try to explain yourself?
+                    </label>
+                    <select name="try_explanation" id="try_explanation" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="aggressive_response">
+                        <i class="fas fa-exclamation mr-2"></i>Do you react aggressively?
+                    </label>
+                    <select name="aggressive_response" id="aggressive_response" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </button>
+                    <button type="button" onclick="nextStep()" class="btn btn-primary">
+                        Next
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Final Assessment -->
+            <div class="form-step" id="step-4">
+                <div class="step-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    Step 4: Final Assessment
+                </div>
+                <p class="step-description">Just a few more questions to complete your assessment.</p>
+                
+                <div class="form-group">
+                    <label class="form-label" for="ignore_move_on">
+                        <i class="fas fa-forward mr-2"></i>Do you ignore issues and move on?
+                    </label>
+                    <select name="ignore_move_on" id="ignore_move_on" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="nervous_break_down">
+                        <i class="fas fa-wind mr-2"></i>Nervous Breakdowns:
+                    </label>
+                    <select name="nervous_break_down" id="nervous_break_down" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="admit_mistakes">
+                        <i class="fas fa-check-circle mr-2"></i>Do you admit mistakes?
+                    </label>
+                    <select name="admit_mistakes" id="admit_mistakes" required class="form-select">
+                        <option value="">Select option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="overthinking">
+                        <i class="fas fa-thinking mr-2"></i>Do you overthink often?
+                    </label>
+                    <select name="overthinking" id="overthinking" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="sexual_activity">
+                        <i class="fas fa-heart mr-2"></i>Sexual Activity Level:
+                    </label>
+                    <select name="sexual_activity" id="sexual_activity" required class="form-select">
+                        <option value="">Select level</option>
+                        <option value="0">Low</option>
+                        <option value="1">Moderate</option>
+                        <option value="2">High</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="concentration">
+                        <i class="fas fa-bullseye mr-2"></i>Do you have trouble concentrating?
+                    </label>
+                    <select name="concentration" id="concentration" required class="form-select">
+                        <option value="">Select frequency</option>
+                        <option value="0">Never</option>
+                        <option value="1">Seldom</option>
+                        <option value="2">Sometimes</option>
+                        <option value="3">Usually</option>
+                        <option value="4">Most Often</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="optimisim">
+                        <i class="fas fa-smile mr-2"></i>Optimism Level:
+                    </label>
+                    <select name="optimisim" id="optimisim" required class="form-select">
+                        <option value="">Select level</option>
+                        <option value="0">Very Low</option>
+                        <option value="1">Low</option>
+                        <option value="2">Neutral</option>
+                        <option value="3">High</option>
+                        <option value="4">Very High</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-between mt-6">
+                    <button type="button" onclick="prevStep()" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Previous
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i>
+                        Submit Assessment
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+
+function updateStepIndicators(step) {
+    document.querySelectorAll('.step-bubble').forEach((bubble, index) => {
+        const stepNum = index + 1;
+        bubble.classList.remove('active', 'completed');
+        if (stepNum === step) {
+            bubble.classList.add('active');
+        } else if (stepNum < step) {
+            bubble.classList.add('completed');
+        }
+    });
+}
+
+function validateStep(step) {
+    const currentStepElement = document.getElementById(`step-${step}`);
+    const requiredFields = currentStepElement.querySelectorAll('select[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        const errorDiv = field.parentElement.querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+        
+        if (!field.value) {
+            isValid = false;
+            const error = document.createElement('div');
+            error.className = 'error-message';
+            error.innerHTML = '<i class="fas fa-exclamation-circle"></i> This field is required';
+            field.parentElement.appendChild(error);
+            field.classList.add('border-red-500');
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+    
+    return isValid;
+}
+
+function showStep(step) {
+    document.querySelectorAll('.form-step').forEach(stepDiv => {
+        stepDiv.classList.remove('active');
+    });
+    
+    const targetStep = document.getElementById(`step-${step}`);
+    targetStep.classList.add('active');
+    
+    updateStepIndicators(step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+    if (!validateStep(currentStep)) {
+        return;
+    }
+    
+    if (currentStep < totalSteps) {
+        currentStep++;
+        showStep(currentStep);
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    showStep(1);
+    
+    document.querySelectorAll('select[required]').forEach(select => {
+        select.addEventListener('change', function() {
+            const errorDiv = this.parentElement.querySelector('.error-message');
+            if (errorDiv) {
+                errorDiv.remove();
+            }
+            this.classList.remove('border-red-500');
+        });
+    });
+});
+
+document.getElementById('mentalHealthForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!validateStep(currentStep)) {
+        return;
+    }
+    
+    const submitButton = this.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.innerHTML = `
+        <i class="fas fa-spinner loading-spinner"></i>
+        Processing...
+    `;
+    
+    this.submit();
+});
+</script>
+{% endblock %}

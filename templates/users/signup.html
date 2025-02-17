@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<!-- Tailwind CSS via CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<!-- Custom Styles -->
+<style>
+    body {
+        background: linear-gradient(to right, #6EE7B7, #3B82F6);
+    }
+    .bg-pattern {
+        background-image: url('https://www.transparenttextures.com/patterns/white-paper.png');
+    }
+    .password-strength {
+        height: 4px;
+        transition: width 0.3s ease;
+    }
+    .input-focus {
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .input-focus:focus {
+        border-color: #3B82F6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+    .illustration-container {
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .illustration-container.hidden {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-6 bg-pattern">
+    <div class="bg-white shadow-2xl rounded-2xl w-full max-w-4xl p-8 transform transition-all duration-500 hover:scale-[1.01]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Illustration Section -->
+            <div class="illustration-container flex flex-col justify-center items-center">
+                <!-- Patient Illustration -->
+                <div id="patient-illustration" class="illustration-content">
+                    <img src="{% static 'images/patient_illustration.jpg' %}" alt="Patient Illustration" class="rounded-lg shadow-lg mb-6">
+                    <h2 class="text-2xl font-bold text-blue-600 mb-2">Welcome, Patient!</h2>
+                    <p class="text-gray-600 text-center">Manage your health records, book appointments, and stay connected with your doctors.</p>
+                </div>
+
+                <!-- Doctor Illustration -->
+                <div id="doctor-illustration" class="illustration-content hidden">
+                    <img src="{% static 'images/doctor_illustration.jpg' %}" alt="Doctor Illustration" class="rounded-lg shadow-lg mb-6">
+                    <h2 class="text-2xl font-bold text-green-600 mb-2">Welcome, Doctor!</h2>
+                    <p class="text-gray-600 text-center">Access patient records, manage appointments, and provide the best care.</p>
+                </div>
+
+                <!-- Admin Illustration -->
+                <div id="admin-illustration" class="illustration-content hidden">
+                    <img src="{% static 'images/admin_illustration.jpg' %}" alt="Admin Illustration" class="rounded-lg shadow-lg mb-6">
+                    <h2 class="text-2xl font-bold text-purple-600 mb-2">Welcome, Admin!</h2>
+                    <p class="text-gray-600 text-center">Manage the platform, oversee users, and ensure smooth operations.</p>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div>
+                <div class="text-center mb-8">
+                    <h2 class="text-4xl font-bold text-blue-600 mb-2">Create Your Account</h2>
+                    <p class="text-gray-500">Join MediCure - Your Healthcare Companion</p>
+                </div>
+
+                <!-- User Type Selection -->
+                <form method="POST" class="space-y-6">
+                    {% csrf_token %}
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold mb-4 text-center">Select Account Type</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <!-- Patient Option -->
+                            <label class="relative block group">
+                                <input type="radio" name="user_type" value="patient" class="peer hidden" required>
+                                <div class="p-4 text-center border-2 rounded-lg cursor-pointer transition-all duration-300 border-gray-200 hover:border-blue-500 hover:shadow-lg peer-checked:border-blue-500 peer-checked:bg-blue-50">
+                                    <i class="fas fa-user-circle text-3xl mb-2 text-blue-600"></i>
+                                    <h3 class="font-semibold">Patient</h3>
+                                </div>
+                            </label>
+                            
+                            <!-- Doctor Option -->
+                            <label class="relative block group">
+                                <input type="radio" name="user_type" value="doctor" class="peer hidden">
+                                <div class="p-4 text-center border-2 rounded-lg cursor-pointer transition-all duration-300 border-gray-200 hover:border-green-500 hover:shadow-lg peer-checked:border-green-500 peer-checked:bg-green-50">
+                                    <i class="fas fa-user-md text-3xl mb-2 text-green-600"></i>
+                                    <h3 class="font-semibold">Doctor</h3>
+                                </div>
+                            </label>
+                    
+                            <!-- Admin Option -->
+                            <label class="relative block group">
+                                <input type="radio" name="user_type" value="admin" class="peer hidden">
+                                <div class="p-4 text-center border-2 rounded-lg cursor-pointer transition-all duration-300 border-gray-200 hover:border-purple-500 hover:shadow-lg peer-checked:border-purple-500 peer-checked:bg-purple-50">
+                                    <i class="fas fa-user-shield text-3xl mb-2 text-purple-600"></i>
+                                    <h3 class="font-semibold">Admin</h3>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">First Name</label>
+                            <input type="text" name="first_name" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Last Name</label>
+                            <input type="text" name="last_name" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">Email</label>
+                        <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Password</label>
+                            <input type="password" name="password1" id="password1" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Confirm Password</label>
+                            <input type="password" name="password2" id="password2" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" required>
+                        </div>
+                    </div>
+
+                    <!-- Password Strength Meter -->
+                    <div class="relative mb-4">
+                        <div class="password-strength bg-red-500" id="passwordStrength"></div>
+                    </div>
+
+                    <!-- Doctor-specific fields -->
+                    <div id="doctor-fields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Specialization</label>
+                            <select name="specialization" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+                                <option value="">Select Specialization</option>
+                                <option value="general">General Physician</option>
+                                <option value="cardiology">Cardiologist</option>
+                                <option value="dermatology">Dermatologist</option>
+                                <option value="orthopedics">Orthopedic</option>
+                                <option value="pediatrics">Pediatrician</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">License Number</label>
+                            <input type="text" name="license_number" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Experience (Years)</label>
+                            <input type="number" name="experience" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus">
+                        </div>
+                    </div>
+
+                    <!-- Admin-specific fields -->
+                    <div id="admin-fields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-gray-700 font-medium mb-2">Admin Code</label>
+                            <input type="text" name="admin_code" class="w-full px-3 py-2 border border-gray-300 rounded-md input-focus" placeholder="Enter admin verification code">
+                            <p class="text-sm text-gray-500 mt-1">This code is required for admin registration</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors duration-300 transform hover:scale-[1.02] active:scale-95">
+                        Create Account
+                    </button>
+
+                    <p class="text-center text-gray-600 mt-4">
+                        Already have an account? <a href="{% url 'login' %}" class="text-blue-600 font-bold hover:underline">Login</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userTypeInputs = document.querySelectorAll('input[name="user_type"]');
+    const doctorFields = document.getElementById('doctor-fields');
+    const adminFields = document.getElementById('admin-fields');
+    const password1 = document.getElementById('password1');
+    const passwordStrength = document.getElementById('passwordStrength');
+
+    const illustrations = {
+        patient: document.getElementById('patient-illustration'),
+        doctor: document.getElementById('doctor-illustration'),
+        admin: document.getElementById('admin-illustration')
+    };
+
+    // Show/Hide fields and illustrations based on user type
+    userTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Hide all illustrations
+            Object.values(illustrations).forEach(illustration => {
+                illustration.classList.add('hidden');
+            });
+
+            // Show the selected illustration
+            illustrations[this.value].classList.remove('hidden');
+
+            // Show/Hide fields
+            doctorFields.classList.add('hidden');
+            adminFields.classList.add('hidden');
+
+            if (this.value === 'doctor') {
+                doctorFields.classList.remove('hidden');
+            } else if (this.value === 'admin') {
+                adminFields.classList.remove('hidden');
+            }
+        });
+    });
+
+    // Password strength meter
+    password1.addEventListener('input', function() {
+        const password = this.value;
+        const strength = calculatePasswordStrength(password);
+        passwordStrength.style.width = `${strength * 20}%`;
+        passwordStrength.className = `password-strength ${getStrengthColor(strength)}`;
+    });
+
+    function calculatePasswordStrength(password) {
+        const criteria = [
+            password.length > 8,
+            /[A-Z]/.test(password),
+            /[a-z]/.test(password),
+            /[0-9]/.test(password),
+            /[^A-Za-z0-9]/.test(password)
+        ];
+        return criteria.filter(Boolean).length;
+    }
+
+    function getStrengthColor(strength) {
+        if (strength < 2) return 'bg-red-500';
+        if (strength < 4) return 'bg-yellow-500';
+        return 'bg-green-500';
+    }
+});
+</script>
+{% endblock %}

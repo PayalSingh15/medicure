@@ -1,0 +1,187 @@
+{% extends 'users/sidebar.html' %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .dashboard-card {
+        transition: all 0.3s duration;
+        transform: scale(1);
+    }
+    .dashboard-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .health-metric {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="bg-gray-50 min-h-screen p-8">
+    <!-- Personalized Greeting -->
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-4xl font-bold text-gray-800">
+                Welcome, {{ user.first_name }}! 👋
+            </h1>
+            <p class="text-gray-600 mt-2">
+                Your health companion is here to support you today.
+            </p>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="relative bg-white shadow-md rounded-full p-2">
+                <i class="fas fa-bell text-blue-500 text-2xl"></i>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    3
+                </span>
+            </div>
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                <i class="fas fa-plus mr-2"></i>Book Appointment
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Dashboard Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Upcoming Appointments Card -->
+        <div class="dashboard-card bg-white rounded-2xl p-6 shadow-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold text-blue-600">
+                    <i class="fas fa-calendar-alt mr-3"></i>Upcoming Appointments
+                </h3>
+                <a href="{% url 'my-appointments' %}" class="text-blue-500 hover:underline">
+                    View All
+                </a>
+            </div>
+            
+            {% if upcoming_appointments %}
+                {% for appointment in upcoming_appointments|slice:":3" %}
+                    <div class="bg-blue-50 rounded-lg p-4 mb-3 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold">{{ appointment.doctor.name }}</h4>
+                            <p class="text-sm text-gray-600">
+                                {{ appointment.date|date:"F d, Y" }} at {{ appointment.time }}
+                            </p>
+                        </div>
+                        <span class="bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
+                            Confirmed
+                        </span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-gray-500 text-center">No upcoming appointments</p>
+            {% endif %}
+        </div>
+
+        <!-- Health Metrics Card -->
+        <div class="dashboard-card bg-white rounded-2xl p-6 shadow-lg">
+            <h3 class="text-2xl font-bold text-green-600 mb-4">
+                <i class="fas fa-heartbeat mr-3"></i>Health Metrics
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="health-metric">
+                    <i class="fas fa-weight text-2xl text-blue-500"></i>
+                    <div>
+                        <p class="font-semibold">Weight</p>
+                        <p class="text-gray-600">{{ user.weight }} kg</p>
+                    </div>
+                </div>
+                <div class="health-metric">
+                    <i class="fas fa-running text-2xl text-green-500"></i>
+                    <div>
+                        <p class="font-semibold">Daily Steps</p>
+                        <p class="text-gray-600">{{ user.daily_steps }} steps</p>
+                    </div>
+                </div>
+                <div class="health-metric">
+                    <i class="fas fa-heart text-2xl text-red-500"></i>
+                    <div>
+                        <p class="font-semibold">Heart Rate</p>
+                        <p class="text-gray-600">{{ user.heart_rate }} bpm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Recommendations Card -->
+        <div class="dashboard-card bg-white rounded-2xl p-6 shadow-lg">
+            <h3 class="text-2xl font-bold text-purple-600 mb-4">
+                <i class="fas fa-clipboard-list mr-3"></i>Recommendations
+            </h3>
+            
+            <div class="space-y-4">
+                <div class="bg-purple-50 rounded-lg p-4 flex items-center">
+                    <i class="fas fa-dumbbell text-purple-500 mr-4 text-2xl"></i>
+                    <div>
+                        <h4 class="font-semibold">Exercise Plan</h4>
+                        <p class="text-sm text-gray-600">30 mins cardio recommended</p>
+                    </div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 flex items-center">
+                    <i class="fas fa-salad text-green-500 mr-4 text-2xl"></i>
+                    <div>
+                        <h4 class="font-semibold">Nutrition</h4>
+                        <p class="text-sm text-gray-600">Low-carb diet plan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Health Chart -->
+    <div class="mt-8 bg-white rounded-2xl p-6 shadow-lg">
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+            <i class="fas fa-chart-line mr-3"></i>Health Progress
+        </h3>
+        <canvas id="healthProgressChart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Health Progress Chart
+    const ctx = document.getElementById('healthProgressChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Weight',
+                data: [70, 69, 68, 67, 66, 65],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }, {
+                label: 'Daily Steps',
+                data: [ 5000, 6000, 7000, 8000, 9000, 10000],
+                borderColor: 'rgb(255, 99, 132)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                },
+                title: {
+                    display: true,
+                    text: 'Health Progress Over Time'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

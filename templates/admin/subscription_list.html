@@ -1,0 +1,169 @@
+{% extends 'users/admin_sidebar.html' %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    :root {
+        --primary-color: #3B82F6;
+        --secondary-color: #10B981;
+        --background-color: #F4F7FA;
+    }
+
+    body {
+        background-color: var(--background-color);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .subscription-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .subscription-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .subscription-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Subscription Management{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-center mb-2">Subscription Management</h1>
+        <p class="text-gray-600 text-center">Comprehensive overview of user subscriptions</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="stat-card p-6 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-blue-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">Total Subscriptions</h3>
+                    <p class="text-3xl font-bold text-blue-600">{{ stats.total }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card p-6 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-green-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">Active Subscriptions</h3>
+                    <p class="text-3xl font-bold text-green-600">{{ stats.active }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card p-6 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <svg class="w-12 h-12 text-purple-600 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">Monthly Plans</h3>
+                    <p class="text-3xl font-bold text-purple-600">{{ stats.monthly }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="mb-6 flex justify-between items-center">
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search subscriptions..." 
+            class="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg"
+        >
+        <select id="planFilter" class="ml-4 px-4 py-2 border border-gray-300 rounded-lg">
+            <option value="">All Plans</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
+        </select>
+    </div>
+
+    <!-- Subscriptions Grid -->
+    <div class="subscription-grid">
+        {% for subscription in subscriptions %}
+            <div class="subscription-card" data-username="{{ subscription.user.username|lower }}" data-plan="{{ subscription.plan }}">
+                <h4 class="text-lg font-semibold">{{ subscription.user.username }}</h4>
+                <p class="text-gray-500">{{ subscription.user.email }}</p>
+                <div class="status-badge {% if subscription.payment_status %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ subscription.payment_status|yesno:"Active,Inactive" }}
+                </div>
+                <p class="text-gray-600">Plan: {{ subscription.plan|title }}</p>
+                <p class="text-gray-500">Start Date: {{ subscription.start_date|date:"M d, Y" }}</p>
+                <p class="text-gray-500">Order ID: {{ subscription.razorpay_order_id }}</p>
+            </div>
+        {% empty %}
+            <div class="col-span-full text-center text-gray-500">
+                No subscriptions found.
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const planFilter = document.getElementById('planFilter');
+    const cards = document.querySelectorAll('.subscription-card');
+
+    function filterCards() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedPlan = planFilter.value;
+
+        cards.forEach(card => {
+            const username = card.getAttribute('data-username');
+            const plan = card.getAttribute('data-plan');
+            
+            const matchesSearch = username.includes(searchTerm);
+            const matchesPlan = !selectedPlan || plan === selectedPlan;
+            
+            card.style.display = matchesSearch && matchesPlan ? 'block' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('input', filterCards);
+    planFilter.addEventListener('change', filterCards);
+});
+</script>
+{% endblock %}

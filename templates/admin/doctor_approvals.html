@@ -1,0 +1,481 @@
+{% extends 'users/admin_sidebar.html' %}
+
+{% block extra_head %}
+{{ block.super }}
+<style>
+    :root {
+        --primary-color: #3B82F6;
+        --secondary-color: #10B981;
+        --background-color: #F4F7FA;
+    }
+
+    .doctor-card {
+        transition: all 0.3s ease;
+        transform-style: preserve-3d;
+    }
+
+    .doctor-card:hover {
+        transform: translateY(-10px) rotateX(5deg) scale(1.02);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    body {
+        background-color: var(--background-color);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+
+    .doctor-card {
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .doctor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .bg-approved {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+
+    .bg-pending {
+        background-color: #fef9c3;
+        color: #7c7c00;
+    }
+
+    .bg-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+    
+    .modal-content {
+        background: white;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        width: 90%;
+        max-width: 500px;
+    }
+
+    .search-input {
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    }
+
+    .button {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .button:hover {
+        background-color: #2563eb;
+    }
+
+    .button-secondary {
+        background-color: #10B981;
+    }
+
+    .button-secondary:hover {
+        background-color: #059669;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Doctor Management{% endblock %}
+
+{% block dashboard_content %}
+{% csrf_token %}
+<div class="bg-white shadow-lg rounded-xl p-6">
+    <!-- Search and Filter Section -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex space-x-4">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Search doctors..." 
+                class="search-input px-4 py-2 border border-gray-300 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            <select id="filterSpecialization" class="px-4 py-2 border border-gray-300 rounded-lg">
+                <option value="">All Specializations</option>
+                <!-- Dynamically populate specializations -->
+            </select>
+        </div>
+        <button 
+            id="addDoctorBtn" 
+            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex items-center"
+        >
+            <i class="fas fa-plus mr-2"></i> Add New Doctor
+        </button>
+    </div>
+
+    <!-- Pending Doctors Section -->
+    <div class="mt-8">
+        <h2 class="section-title">Pending Approvals</h2>
+        <div id="pendingDoctors" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Pending doctors will be populated here -->
+        </div>
+    </div>
+
+    <!-- Approved Doctors Section -->
+    <div class="mt-8">
+        <h2 class="section-title">Approved Doctors</h2>
+        <div id="approvedDoctors" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Approved doctors will be populated here -->
+        </div>
+    </div>
+</div>
+
+<!-- Doctor Details Modal -->
+<div id="doctorDetailsModal" class="modal hidden">
+    <div class="bg-white rounded-xl shadow-2xl w-11/12 max-w-2xl p-8">
+        <!-- Doctor details will be dynamically populated -->
+    </div>
+</div>
+
+<script>
+class DoctorManagement {
+    constructor() {
+        // More defensive CSRF token retrieval
+        const csrfElement = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfElement) {
+            console.error('CSRF token not found in the page');
+            this.csrftoken = null;
+        } else {
+            this.csrftoken = csrfElement.value;
+        }
+        
+        this.searchInput = document.getElementById('searchInput');
+        this.filterSpecialization = document.getElementById('filterSpecialization');
+        this.addDoctorBtn = document.getElementById('addDoctorBtn');
+        this.pendingDoctorsGrid = document.getElementById('pendingDoctors');
+        this.approvedDoctorsGrid = document.getElementById('approvedDoctors');
+        
+        if (!this.csrftoken) {
+            this.showError("CSRF token not found. Please refresh the page.");
+            return;
+        }
+
+        this.initEventListeners();
+        this.fetchAllDoctors();
+    }
+
+    // Add this method to show errors
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4';
+        errorDiv.innerHTML = message;
+        document.querySelector('.dashboard_content').prepend(errorDiv);
+    }
+
+    initEventListeners() {
+        this.searchInput.addEventListener('input', this.filterDoctors.bind(this));
+        this.filterSpecialization.addEventListener('change', this.filterDoctors.bind(this));
+        this.addDoctorBtn.addEventListener('click', this.showAddDoctorModal.bind(this));
+    }
+
+    getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    async fetchAllDoctors() {
+        try {
+            const [pendingDoctors, approvedDoctors] = await Promise.all([
+                this.fetchDoctors('pending'),
+                this.fetchDoctors('approved')
+            ]);
+            
+            this.renderDoctorSection(pendingDoctors, this.pendingDoctorsGrid);
+            this.renderDoctorSection(approvedDoctors, this.approvedDoctorsGrid);
+        } catch (error) {
+            console.error('Error fetching doctors:', error);
+        }
+    }
+
+    async fetchDoctors(status) {
+        if (!this.csrftoken) {
+            console.error('CSRF token is missing');
+            this.showError('Authentication error. Please refresh the page.');
+            return [];
+        }
+
+        try {
+            const response = await fetch(`/doctors/api/doctors/${status}/`, {
+                headers: {
+                    'X-CSRFToken': this.csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error(`Error fetching ${status} doctors:`, error);
+            this.showError(`Failed to load ${status} doctors. Please try refreshing the page.`);
+            return [];
+        }
+    }
+
+    showError(message) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative';
+        errorDiv.role = 'alert';
+        errorDiv.innerHTML = `<span class="block sm:inline">${message}</span>`;
+        
+        // Insert at top of content
+        const content = document.querySelector('.dashboard_content') || document.body;
+        content.insertBefore(errorDiv, content.firstChild);
+    }
+
+
+    renderDoctorSection(doctors, container) {
+        if (!doctors.length) {
+            container.innerHTML = `
+                <div class="col-span-full text-center py-8 text-gray-500">
+                    No doctors found in this category
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = doctors.map(doctor => `
+            <div class="doctor-card bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition">
+                <div class="flex items-center mb-4">
+                    <img 
+                        src="${doctor.profile_picture || '/static/images/default-doctor.png'}" 
+                        alt="${doctor.name}" 
+                        class="w-16 h-16 rounded-full mr-4 object-cover"
+                    >
+                    <div>
+                        <h3 class="text-lg font-bold">${doctor.name}</h3>
+                        <p class="text-gray-500">${doctor.specialization}</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="status-badge ${
+                        doctor.status === 'approved' ? 'bg-approved' : 
+                        doctor.status === 'pending' ? 'bg-pending' : 
+                        'bg-rejected'
+                    }">
+                        ${doctor.status.charAt(0).toUpperCase() + doctor.status.slice(1)}
+                    </span>
+                    <div class="flex space-x-2">
+                        ${doctor.status === 'pending' ? `
+                            <button onclick="doctorManagement.approveDoctor(${doctor.id})" 
+                                    class="text-green-500 hover:text-green-700">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button onclick="doctorManagement.rejectDoctor(${doctor.id})" 
+                                    class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        ` : ''}
+                        <button onclick="doctorManagement.viewDoctorDetails(${doctor.id})" 
+                                class="text-blue-500 hover:text-blue-700">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="doctorManagement.editDoctor(${doctor.id})" 
+                                class="text-green-500 hover:text-green-700">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    filterDoctors() {
+        const searchTerm = this.searchInput.value.toLowerCase();
+        const specialization = this.filterSpecialization.value;
+
+        // Re-fetch and filter both sections
+        this.fetchAllDoctors().then(() => {
+            const containers = [this.pendingDoctorsGrid, this.approvedDoctorsGrid];
+            containers.forEach(container => {
+                const doctors = Array.from(container.querySelectorAll('.doctor-card'));
+                doctors.forEach(card => {
+                    const name = card.querySelector('h3').textContent.toLowerCase();
+                    const doctorSpecialization = card.querySelector('p').textContent;
+                    const matchesName = name.includes(searchTerm);
+                    const matchesSpecialization = specialization ? doctorSpecialization === specialization : true;
+                    card.style.display = matchesName && matchesSpecialization ? 'block' : 'none';
+                });
+            });
+        });
+    }
+
+    showAddDoctorModal() {
+        const modal = document.getElementById('doctorDetailsModal');
+        modal.classList.remove('hidden');
+        modal.innerHTML = `
+            <div class="modal-content">
+                <h2 class="text-xl font-bold mb-4">Add New Doctor</h2>
+                <form id="addDoctorForm">
+                    <input type="text" name="name" placeholder="Doctor's Name" required class="border border-gray-300 rounded-lg p-2 w-full mb-4">
+                    <input type="email" name="email" placeholder="Doctor's Email" required class="border border-gray-300 rounded-lg p-2 w-full mb-4">
+                    <input type="text" name="specialization" placeholder="Specialization" required class="border border-gray-300 rounded-lg p-2 w-full mb-4">
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Add Doctor</button>
+                </form>
+                <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="mt-4 text-red-500">Cancel</button>
+            </div>
+        `;
+
+        document.getElementById('addDoctorForm').addEventListener('submit', this.addDoctor.bind(this));
+    }
+
+    async addDoctor(event) {
+        event.preventDefault();
+        const formData = new FormData(event.target);
+        const data = Object.fromEntries(formData.entries());
+
+        try {
+            const response = await fetch('/doctors/api/doctors/add/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': this.csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                await this.fetchAllDoctors();
+                document.getElementById('doctorDetailsModal').classList.add('hidden');
+            } else {
+                throw new Error('Failed to add doctor');
+            }
+        } catch (error) {
+            console.error('Error adding doctor:', error);
+        }
+    }
+
+    async approveDoctor(doctorId) {
+        try {
+            const response = await fetch(`/doctors/api/doctors/update/${doctorId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRFToken': this.csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: 'approved' })
+            });
+
+            if (response.ok) {
+                await this.fetchAllDoctors();
+            } else {
+                throw new Error('Failed to approve doctor');
+            }
+        } catch (error) {
+            console.error('Error approving doctor:', error);
+        }
+    }
+
+    async rejectDoctor(doctorId) {
+        if (!confirm('Are you sure you want to reject this doctor?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/doctors/api/doctors/update/${doctorId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRFToken': this.csrftoken,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: 'rejected' })
+            });
+
+            if (response.ok) {
+                await this.fetchAllDoctors();
+            } else {
+                throw new Error('Failed to reject doctor');
+            }
+        } catch (error) {
+            console.error('Error rejecting doctor:', error);
+        }
+    }
+
+    viewDoctorDetails(doctorId) {
+        const modal = document.getElementById('doctorDetailsModal');
+        modal.classList.remove('hidden');
+        // Fetch and display doctor details
+    }
+
+    editDoctor(doctorId) {
+        const modal = document.getElementById('doctorDetailsModal');
+        modal.classList.remove('hidden');
+        // Fetch and display doctor editing form
+    }
+}
+window.onerror = function(msg, url, lineNo, columnNo, error) {
+    console.error('Global error:', {msg, url, lineNo, columnNo, error});
+    return false;
+};
+
+// Initialize with error handling
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        window.doctorManagement = new DoctorManagement();
+    } catch (error) {
+        console.error('Failed to initialize DoctorManagement:', error);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4';
+        errorDiv.innerHTML = 'Failed to initialize doctor management system. Please refresh the page.';
+        document.querySelector('.dashboard_content').prepend(errorDiv);
+    }
+});
+</script>
+{% endblock %}

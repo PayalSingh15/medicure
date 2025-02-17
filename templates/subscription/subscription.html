@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #3B82F6;
+        --secondary-color: #10B981;
+        --background-color: #F4F7FA;
+    }
+
+    body {
+        background-color: var(--background-color);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    .subscription-container {
+        perspective: 1000px;
+    }
+
+    .subscription-card {
+        transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform-style: preserve-3d;
+    }
+
+    .subscription-card:hover {
+        transform: 
+            translateZ(50px) 
+            rotateX(10deg) 
+            scale(1.05);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+
+    .feature-icon {
+        transition: all 0.3s ease;
+    }
+
+    .subscription-card:hover .feature-icon {
+        transform: scale(1.2) rotate(15deg);
+    }
+
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 subscription-container">
+    <div class="max-w-5xl w-full space-y-8">
+        <!-- Page Header -->
+        <div class="text-center">
+            <h1 class="text-5xl font-extrabold text-gray-900 mb-4">
+                Choose Your MediCure Plan
+            </h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Unlock personalized health insights, AI-powered diagnostics, and comprehensive wellness support.
+            </p>
+        </div>
+
+        <!-- Subscription Plans -->
+        <div class="grid md:grid-cols-2 gap-12">
+            <!-- Monthly Plan -->
+            <div class="subscription-card bg-white rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 m-4 bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-sm font-semibold">
+                    Popular Choice
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-calendar-alt text-5xl text-blue-600 feature-icon"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Monthly Plan</h2>
+                    <p class="text-4xl font-extrabold text-blue-600">
+                        ₹5000
+                        <span class="text-lg text-gray-500 font-normal">/month</span>
+                    </p>
+                </div>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        Unlimited AI Disease Predictions
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        Personalized Health Insights
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        Monthly Health Tracking
+                    </li>
+                </ul>
+
+                <button 
+                    class="pay-btn w-full bg-blue-600 text-white py-4 rounded-lg font-bold hover:bg-blue-700 transition pulse-animation" 
+                    data-plan="monthly"
+                >
+                    Subscribe Monthly
+                    <i class="fas fa-arrow-right ml-3"></i>
+                </button>
+            </div>
+
+            <!-- Yearly Plan -->
+            <div class="subscription-card bg-white rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 m-4 bg-green-100 text-green-600 px-4 py-1 rounded-full text-sm font-semibold">
+                    Best Value
+                </div>
+                
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-calendar-alt text-5xl text-green-600 feature-icon"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Yearly Plan</h2>
+                    <p class="text-4xl font-extrabold text-green-600">
+                        ₹50000
+                        <span class="text-lg text-gray-500 font-normal">/year</span>
+                    </p>
+                    <p class="text-sm text-green-600 mt-2">Save 17% Annually</p>
+                </div>
+
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        All Monthly Plan Features
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        Priority Doctor Consultations
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        Advanced Health Analytics
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                        24/7 Premium Support
+                    </li>
+                </ul>
+
+                <button 
+                    class="pay-btn w-full bg-green-600 text-white py-4 rounded-lg font-bold hover:bg-green-700 transition pulse-animation" 
+                    data-plan="yearly"
+                >
+                    Subscribe Yearly
+                    <i class="fas fa-arrow-right ml-3"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Guarantee Section -->
+        <div class="text-center mt-12">
+            <div class="inline-flex items-center bg-white px-6 py-4 rounded-full shadow-lg">
+                <i class="fas fa-shield-alt text-2xl text-blue-600 mr-4"></i>
+                <span class="text-gray-800 font-semibold">
+                    30-Day Money-Back Guarantee
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".pay-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            let plan = this.getAttribute("data-plan");
+            fetch("{% url 'create-subscription' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ plan: plan })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.order_id) {
+                    let options = {
+                        "key": "{{ RAZORPAY_KEY_ID }}",
+                        "amount": data.amount * 100, 
+                        "currency": "INR",
+                        "name": "MediCure",
+                        "description": "Subscription Payment",
+                        "order_id": data.order_id,
+                        "handler": function (response) {
+                            fetch("{% url 'verify-subscription' %}", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRFToken": "{{ csrf_token }}"
+                                },
+                                body: JSON.stringify({
+                                    order_id: data.order_id,
+                                    payment_id: response.razorpay_payment_id,
+                                    signature: response.razorpay_signature
+                                })
+                            })
+                            .then(res => res.json())
+                            .then(result => alert(result.message));
+                        },
+                        "theme": { "color": "#0d6efd" }
+                    };
+                    let rzp = new Razorpay(options);
+                    rzp.open();
+                } else {
+                    alert("Error creating order. Try again.");
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - MediCure{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-5">
+    <h1 class="text-3xl font-bold text-blue-600 text-center">Welcome, {{ user.username }}!</h1>
+    <p class="text-gray-600 text-center">Your healthcare dashboard at a glance.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <!-- Appointments -->
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 class="text-xl font-bold text-blue-600">Appointments</h3>
+            <p class="text-gray-600">Manage your doctor appointments.</p>
+            <a href="{% url 'appointments' %}" class="btn btn-primary mt-3">View Appointments</a>
+        </div>
+
+        <!-- Disease Prediction -->
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 class="text-xl font-bold text-blue-600">Disease Prediction</h3>
+            <p class="text-gray-600">Check symptoms and get medical insights.</p>
+            <a href="{% url 'disease_prediction:predict' %}" class="btn btn-primary mt-3">Predict Disease</a>
+        </div>
+
+        <!-- Subscription -->
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <h3 class="text-xl font-bold text-blue-600">Subscription</h3>
+            <p class="text-gray-600">Manage your subscription plans.</p>
+            <a href="{% url 'subscription' %}" class="btn btn-primary mt-3">Manage Subscription</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    :root {
+        --primary-color: #3B82F6;
+        --secondary-color: #10B981;
+        --background-color: #F3F4F6;
+    }
+
+    body {
+        background-color: var(--background-color);
+    }
+
+    .sidebar {
+        background: linear-gradient(to bottom right, var(--primary-color), var(--secondary-color));
+        transition: width 0.3s ease;
+    }
+
+    .sidebar-item {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: rgba(255,255,255,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-item:hover::before {
+        left: 0;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        transform-style: preserve-3d;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-10px) rotateX(5deg);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex min-h-screen">
+    <!-- Advanced Sidebar -->
+    <div class="sidebar w-64 bg-gradient-to-br from-blue-600 to-green-500 text-white p-6 shadow-2xl relative">
+        <!-- Profile Section -->
+        <div class="flex items-center mb-8 space-x-4">
+            <div class="w-16 h-16 rounded-full overflow-hidden border-4 border-white">
+                <img src="{{ request.user.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h2 class="text-xl font-bold">{{ request.user.get_full_name }}</h2>
+                <p class="text-sm opacity-75">{{ request.user.user_type|title }}</p>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav>
+            <ul class="space-y-2">
+                <li class="sidebar-item">
+                    <a href="{% url 'dashboard' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                        <i class="fas fa-home mr-3"></i>
+                        <span>Home</span>
+                    </a>
+                </li>
+
+                {% if request.user.is_doctor %}
+                    <li class="sidebar-item">
+                        <a href="{% url 'doctor-appointments' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                            <i class="fas fa-calendar-check mr-3"></i>
+                            <span>Appointment Requests</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'approved-patients' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                            <i class="fas fa-users mr-3"></i>
+                            <span>Patients List</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="sidebar-item">
+                        <a href="{% url 'my-appointments' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                            <i class="fas fa-calendar-alt mr-3"></i>
+                            <span>My Appointments</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'doctor_list' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                            <i class="fas fa-user-md mr-3"></i>
+                            <span>Find Doctors</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'subscription-status' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                            <i class="fas fa-user-md mr-3"></i>
+                            <span>Subscription Status</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="sidebar-item">
+                    <a href="{% url 'profile' %}" class="block p-3 rounded-lg hover:bg-white/10 flex items-center">
+                        <i class="fas fa-user-cog mr-3"></i>
+                        <span>Profile Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Logout Button -->
+        <div class="absolute bottom-0 left-0 w-full p-4">
+            <a href="{% url 'logout' %}" class="w-full bg-white/20 hover:bg-white/30 p-3 rounded-lg flex items-center justify-center">
+                <i class="fas fa-sign-out-alt mr-3"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="flex-1 p-8 bg-gray-50 overflow-y-auto">
+        <!-- Responsive Header -->
+        <header class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">
+                    {% block page_title %}Dashboard{% endblock %}
+                </h1>
+                <p class="text-gray-500">Welcome back, {{ request.user.first_name }}!</p>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex items-center space-x-4">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+                    <i class="fas fa-plus mr-2"></i>New Appointment
+                </button>
+                <div class="relative">
+                    <i class="fas fa-bell text-2xl text-gray-600 cursor-pointer hover:text-blue-500"></i>
+                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Dashboard Content -->
+        <main class="dashboard-grid">
+            {% block dashboard_content %}
+                <!-- Default Dashboard Cards -->
+                <div class="dashboard-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Upcoming Appointments</h3>
+                        <i class="fas fa-calendar text-blue-500"></i>
+                    </div>
+                    <p class="text-gray-500">No upcoming appointments</p>
+                </div>
+
+                <div class="dashboard-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Health Metrics</h3>
+                        <i class="fas fa-heartbeat text-green-500"></i>
+                    </ div>
+                    <p class="text-gray-500">Your latest health metrics will be displayed here.</p>
+                </div>
+
+                <div class="dashboard-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-semibold">Messages</h3>
+                        <i class="fas fa-comments text-yellow-500"></i>
+                    </div>
+                    <p class="text-gray-500">You have no new messages.</p>
+                </div>
+            {% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Notification bell click event
+    const bellIcon = document.querySelector('.fa-bell');
+    bellIcon.addEventListener('click', function() {
+        alert('You have 3 new notifications!');
+    });
+
+    // Sidebar toggle functionality (if needed)
+    const sidebar = document.querySelector('.sidebar');
+    const toggleButton = document.createElement('button');
+    toggleButton.innerHTML = '<i class="fas fa-bars"></i>';
+    toggleButton.className = 'text-white p-2 rounded-lg bg-gray-700 hover:bg-gray-600';
+    toggleButton.addEventListener('click', function() {
+        sidebar.classList.toggle('hidden');
+    });
+    document.body.appendChild(toggleButton);
+});
+</script>
+{% endblock %}

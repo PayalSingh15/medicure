@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Find a Doctor</h1>
+
+    <!-- Status message div for debugging -->
+    <div id="status-message" class="mb-4 p-4 bg-gray-100 rounded hidden"></div>
+
+    <!-- Filtering Section -->
+    <div class="mb-6 bg-gray-100 p-4 rounded-lg">
+        <form id="doctor-filter-form" class="flex space-x-4">
+            {% csrf_token %}
+            <select name="specialization" class="form-select w-1/3 p-2 border rounded">
+                <option value="">All Specializations</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Pediatrics">Pediatrics</option>
+            </select>
+
+            <select name="min_experience" class="form-select w-1/3 p-2 border rounded">
+                <option value="">All Experience Levels</option>
+                <option value="1">1+ Years</option>
+                <option value="5">5+ Years</option>
+                <option value="10">10+ Years</option>
+            </select>
+
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Apply Filters
+            </button>
+        </form>
+    </div>
+
+    <!-- Doctors List -->
+    <div id="doctors-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Doctors will be dynamically populated here -->
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const doctorsList = document.getElementById('doctors-list');
+    const filterForm = document.getElementById('doctor-filter-form');
+    const statusMessage = document.getElementById('status-message');
+
+    function showStatus(message, isError = false) {
+        statusMessage.textContent = message;
+        statusMessage.className = `mb-4 p-4 rounded ${isError ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`;
+        statusMessage.classList.remove('hidden');
+    }
+
+    function fetchDoctors(params = {}) {
+        showStatus('Loading doctors...');
+        
+        // Get CSRF token
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        
+        console.log('Fetching doctors...');
+        
+        fetch('/users/doctors/api/', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            credentials: 'include'
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(doctors => {
+            console.log('Received doctors:', doctors);
+            
+            if (doctors.length === 0) {
+                showStatus('No doctors found.');
+                doctorsList.innerHTML = '<p class="col-span-full text-center text-gray-500">No doctors found.</p>';
+                return;
+            }
+
+            statusMessage.classList.add('hidden');
+            doctorsList.innerHTML = doctors.map(doctor => `
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-2">${doctor.full_name}</h3>
+        <p class="text-gray-600 mb-2">Specialization: ${doctor.specialization}</p>
+        <p class="text-gray-600 mb-2">Experience: ${doctor.experience} years</p>
+        <p class="text-gray-600 mb-4">License: ${doctor.license_number}</p>
+        <a href="/appointments/book/?doctor_id=${doctor.profile_id}" 
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 inline-block">
+            Book Appointment
+        </a>
+    </div>
+`).join('');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showStatus(`Error loading doctors: ${error.message}`, true);
+        });
+    }
+
+    // Initial load
+    fetchDoctors();
+
+    // Filter form submission
+    filterForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(filterForm);
+        const params = Object.fromEntries(formData.entries());
+        fetchDoctors(params);
+    });
+});
+</script>
+{% endblock %}

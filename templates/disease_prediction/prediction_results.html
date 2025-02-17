@@ -1,0 +1,611 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+     :root {
+        --primary-gradient: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
+        --glow-color: rgba(106, 17, 203, 0.4);
+    }
+
+    body {
+        background-color: #ffffff;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    .analysis-container {
+        background: #0a0f1a;
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        padding-bottom: 2rem;
+    }
+
+    /* Scanning Effect */
+    .scan-line {
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(to right,
+            transparent,
+            #2575FC,
+            #6A11CB,
+            transparent
+        );
+        animation: scan 2s linear infinite;
+        opacity: 0;
+    }
+
+    @keyframes scan {
+        0% {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        20% {
+            opacity: 1;
+        }
+        80% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh);
+            opacity: 0;
+        }
+    }
+
+   /* DNA Ribbon Styling */
+.dna-container {
+    position: absolute;
+    width: 100px;
+    height: 300px;
+    top: 50%;
+    right: 15%;
+    transform: translateY(-50%);
+    perspective: 1200px;
+}
+
+.dna-helix {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: rotate 8s linear infinite;
+}
+
+.nucleotide {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: linear-gradient(45deg, #2575FC, #6A11CB);
+    box-shadow: 0 0 15px rgba(37, 117, 252, 0.8);
+    border-radius: 50%;
+    opacity: 0.8;
+    transform-style: preserve-3d;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotateY(0) rotateX(0);
+    }
+    to {
+        transform: rotateY(360deg) rotateX(0);
+    }
+}
+
+@keyframes flow {
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+     /* Modified Loading Screen Layout */
+     .loading-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 100px; /* Space between progress and DNA */
+    }
+
+    .loading-indicators {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+
+    /* Fixed Title */
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        display: inline-block;
+        padding: 0.5rem;
+    }
+
+    .main-title::after {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        background: var(--primary-gradient);
+        filter: blur(20px);
+        opacity: 0;
+        transition: opacity 0.3s;
+        z-index: -1;
+    }
+
+    .main-title:hover::after {
+        opacity: 0.5;
+    }
+
+
+     /* Progress Circle Fix */
+    .progress-circle {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .progress-circle-fill {
+        position: absolute;
+        inset: 5px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, var(--primary-gradient) var(--progress), transparent var(--progress));
+    }
+
+    .progress-circle span {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        z-index: 10;
+    }
+
+     /* Main Content Container Fix */
+     #mainContent {
+        opacity: 0;
+        transition: opacity 0.5s;
+        min-height: 100vh;
+        background: #0a0f1a;
+    }
+
+    #mainContent.visible {
+        opacity: 1;
+    }
+
+    /* Enhanced Scan Line */
+    .scan-line {
+        position: absolute;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right,
+            transparent,
+            #2575FC 20%,
+            #6A11CB 50%,
+            #2575FC 80%,
+            transparent
+        );
+        filter: blur(2px);
+        animation: scan 3s ease-in-out infinite;
+        opacity: 0.5;
+    }
+
+    /* Enhanced Title Glow */
+    .glow-effect {
+        position: relative;
+        display: inline-block;
+    }
+
+    .glow-effect::before {
+        content: '';
+        position: absolute;
+        inset: -10px;
+        background: var(--primary-gradient);
+        filter: blur(15px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: -1;
+        border-radius: inherit;
+    }
+
+    .glow-effect:hover::before {
+        opacity: 0.5;
+    }
+
+    /* Result Cards */
+    .result-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transform: translateY(50px);
+        opacity: 0;
+        transition: all 0.5s ease;
+    }
+
+    .result-card.visible {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    /* Particle System */
+    .particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    .particle {
+        position: absolute;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        animation: float 3s infinite;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            transform: translateY(-100px) translateX(50px);
+            opacity: 0;
+        }
+    }
+
+    /* Enhanced Primary Assessment Card */
+    .primary-card {
+        background: rgba(106, 17, 203, 0.1);
+        border: 1px solid rgba(106, 17, 203, 0.3);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 30px rgba(106, 17, 203, 0.1);
+    }
+
+    .primary-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--primary-gradient);
+        opacity: 0.1;
+        border-radius: inherit;
+        z-index: -1;
+    }
+
+    /* Enhanced Processing Animation */
+    .processing-animation {
+        width: 100%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .processing-animation::after {
+        content: '';
+        position: absolute;
+        width: 40%;
+        height: 100%;
+        background: var(--primary-gradient);
+        filter: blur(2px);
+        animation: process 1.5s ease-in-out infinite;
+    }
+
+    @keyframes process {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(200%); }
+    }
+
+    /* Action Button Hover State */
+    .action-button {
+        background: linear-gradient(to right, #2563eb, #7c3aed);
+        transition: transform 0.3s ease;
+    }
+
+    .action-button:hover {
+        background: linear-gradient(to right, #1d4ed8, #6d28d9);
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="analysis-container">
+     <!-- Modified Loading Screen -->
+     <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0f1a]">
+        <div class="loading-content">
+            <!-- Left side: Progress and Status -->
+            <div class="loading-indicators">
+                <div class="progress-circle mb-8">
+                    <div class="progress-circle-fill"></div>
+                    <span id="progressText" class="relative z-10">0%</span>
+                </div>
+                <div id="statusText" class="text-xl text-blue-400 mb-4">Initializing Analysis...</div>
+                <div class="processing-animation w-64"></div>
+            </div>
+            
+            <!-- Right side: DNA Animation -->
+            <div class="dna-container">
+                <div class="dna-helix" id="dnaHelix">
+                    <div class="dna-strand-1" id="strand1"></div>
+                    <div class="dna-strand-2" id="strand2"></div>
+                </div>
+            </div>
+        </div>
+        <div class="scan-line"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="hidden px-4">
+        <div class="max-w-6xl mx-auto py-24">
+            <h1 class="main-title text-center mb-8">
+                Health Analysis Results
+            </h1>
+
+            <!-- Primary Diagnosis -->
+            <div class="result-card p-6 mb-8 primary-card" id="primaryDiagnosis">
+                <h2 class="text-4xl font-bold mb-4">Primary Assessment</h2>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-3xl font-bold text-blue-400">{{ top_3_predictions.0.0 }}</p>
+                        <p class="text-lg text-gray-400">Confidence Level: {{ top_3_predictions.0.1 }}%</p>
+                    </div>
+                    <div class="progress-circle">
+                        <div class="progress-circle-fill" style="--progress: {{ top_3_predictions.0.1 }}%;"></div>
+                        <span class="text-xl font-bold">{{ top_3_predictions.0.1 }}%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symptoms Analysis -->
+            <div class="result-card p-6 mb-8" id="symptomsAnalysis">
+                <h2 class="text-2xl font-bold mb-4">Reported Symptoms</h2>
+                <div class="flex flex-wrap gap-3">
+                    {% for symptom in selected_symptoms %}
+                    <span class="px-4 py-2 bg-blue-500/20 rounded-full text-blue-300">{{ symptom }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Secondary Predictions -->
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                {% for disease, confidence in top_3_predictions|slice:"1:" %}
+                <div class="result-card p-6" id="prediction{{ forloop.counter }}">
+                    <h3 class="text-xl font-bold mb-2">Alternative Diagnosis {{ forloop.counter }}</h3>
+                    <p class="text-2xl text-blue-400">{{ disease }}</p>
+                    <div class="mt-2 w-full bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-500 h-2 rounded-full" style="width: {{ confidence }}%;" id="confidenceBar{{ forloop.counter }}"></div>
+                    </div>
+                   <p class="text-right mt-1 text-gray-400">{{ confidence }}% match</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Recommendations -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="result-card p-6" id="dietRecommendations">
+                    <h2 class="text-2xl font-bold mb-4">Dietary Recommendations</h2>
+                    <ul class="space-y-3">
+                        {% for diet in recommended_diet %}
+                        <li class="flex items-center">
+                            <span class="text-green-400 mr-2">●</span>
+                            {{ diet }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="result-card p-6" id="exerciseRecommendations">
+                    <h2 class="text-2xl font-bold mb-4">Exercise Plan</h2>
+                    <ul class="space-y-3">
+                        {% for exercise in recommended_exercise %}
+                        <li class="flex items-center">
+                            <span class="text-blue-400 mr-2">●</span>
+                            {{ exercise }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center mt-8">
+                <a href="{% url 'disease_prediction:predict' %}" 
+                   class="action-button inline-block px-8 py-3 rounded-full text-lg font-bold glow-effect">
+                    Start New Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const dnaHelix = document.getElementById('dnaHelix');
+    const numberOfPoints = 30;
+    const radius =40;
+    
+    // Clear existing content
+    dnaHelix.innerHTML = '';
+    
+    function createHelix() {
+        dnaHelix.innerHTML = '';
+        
+        for (let i = 0; i < numberOfPoints; i++) {
+            const yPos = (i / numberOfPoints) * 300;
+            // Calculate sine wave position for continuous twist
+            const xOffset = Math.sin((i / numberOfPoints) * Math.PI * 4) * radius;
+            const zOffset = Math.cos((i / numberOfPoints) * Math.PI * 4) * radius;
+            
+            // Create first ribbon point
+            const point1 = document.createElement('div');
+            point1.className = 'nucleotide';
+            point1.style.cssText = `
+                left: ${50 + xOffset}px;
+                top: ${yPos}px;
+                transform: translateZ(${zOffset}px);
+                animation: flow 3s infinite ${i * 0.1}s;
+            `;
+            
+            // Create second ribbon point (opposite side)
+            const point2 = document.createElement('div');
+            point2.className = 'nucleotide';
+            point2.style.cssText = `
+                left: ${50 - xOffset}px;
+                top: ${yPos}px;
+                transform: translateZ(${-zOffset}px);
+                animation: flow 3s infinite ${i * 0.1}s;
+            `;
+            
+            dnaHelix.appendChild(point1);
+            dnaHelix.appendChild(point2);
+        }
+    }
+
+    // Initial creation
+    createHelix();
+    
+    // Continuously update the helix
+    setInterval(createHelix, 100);
+
+
+
+         // Progress circle functionality
+         function updateCircleProgress(element, percentage) {
+            const fill = element.querySelector('.progress-circle-fill');
+            const text = element.querySelector('span');
+            if (fill && text) {
+                fill.style.setProperty('--progress', `${percentage}%`);
+                text.textContent = `${percentage}%`;
+                text.style.color = '#ffffff'; // Ensure text is visible
+                text.style.zIndex = '1'; // Ensure text is above the fill
+            }
+        }
+
+        // Initialize all progress circles
+        document.querySelectorAll('.progress-circle').forEach(circle => {
+            const percentage = circle.querySelector('span')?.textContent?.replace('%', '') || 0;
+            updateCircleProgress(circle, percentage);
+        });
+
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
+        const progressText = document.getElementById('progressText');
+        const statusText = document.getElementById('statusText');
+        const resultCards = document.querySelectorAll('.result-card');
+
+        // Analysis steps
+        const steps = [
+            { progress: 0, status: "Initializing Analysis..." },
+            { progress: 20, status: "Processing Symptom Data..." },
+            { progress: 40, status: "Analyzing Medical Patterns..." },
+            { progress: 60, status: "Running Diagnostic Algorithms..." },
+            { progress: 80, status: "Generating Recommendations..." },
+            { progress: 100, status: "Analysis Complete!" }
+        ];
+
+        let currentStep = 0;
+    
+        function setCircleProgress(percentage) {
+            const fill = document.querySelector('.progress-circle-fill');
+            if (fill) {
+                fill.style.setProperty('--progress', `${percentage}%`);
+            }
+        }
+    
+        function updateProgress() {
+            if (currentStep >= steps.length) {
+                showResults();
+                return;
+            }
+
+            const step = steps[currentStep];
+            progressText.textContent = `${step.progress}%`;
+            setCircleProgress(step.progress);
+            statusText.textContent = step.status;
+
+            currentStep++;
+            setTimeout(updateProgress, 1500);
+        }
+
+        function showResults() {
+            loadingScreen.style.opacity = '0';
+            loadingScreen.style.transition = 'opacity 0.5s';
+        
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                mainContent.classList.remove('hidden');
+                mainContent.style.opacity = '1';
+                
+                // Animate result cards
+                resultCards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.classList.add('visible');
+                    }, index * 200);
+                });
+
+                // Initialize confidence bars
+                document.querySelectorAll('[id^="confidenceBar"]').forEach(bar => {
+                    bar.style.width = bar.parentElement.nextElementSibling.textContent.split('%')[0] + '%';
+                });
+            }, 500);
+        }
+
+        // Start the animation sequence immediately
+        updateProgress();
+
+        // Add glow effect to main title
+        const mainTitle = document.getElementById('mainTitle');
+        mainTitle.addEventListener('mouseover', () => mainTitle.classList.add('active'));
+        mainTitle.addEventListener('mouseout', () => mainTitle.classList.remove('active'));
+
+        // Add particle effect
+        const particlesContainer = document.createElement('div');
+        particlesContainer.className = 'particles';
+        document.body.appendChild(particlesContainer);
+
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.top = Math.random() * 100 + 'vh';
+            particle.style.width = particle.style.height = Math.random() * 5 + 'px';
+            particlesContainer.appendChild(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 3000);
+        }
+
+        setInterval(createParticle, 200);
+    });
+</script>
+{% endblock %}

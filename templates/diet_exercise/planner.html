@@ -1,0 +1,287 @@
+{# planner.html #}
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-10 animate-fade-in">
+                <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-green-600 mb-4">
+                    Health Profile & Plan Generator
+                </h1>
+                <p class="text-gray-600">Create your personalized health and fitness journey</p>
+            </div>
+                <!-- Jumble Juggle Loader -->
+<!-- Enhanced Jumble Juggle Loader -->
+<div id="loading-screen" class="hidden fixed inset-0 flex flex-col items-center justify-center bg-white bg-opacity-80 backdrop-blur-md z-50">
+    <div class="relative flex space-x-4">
+        <span class="jumble animate-bounce delay-0 text-5xl">🏋️‍♂️</span>
+        <span class="jumble animate-bounce delay-200 text-5xl">🍎</span>
+        <span class="jumble animate-bounce delay-400 text-5xl">💪</span>
+        <span class="jumble animate-bounce delay-600 text-5xl">🥗</span>
+        <span class="jumble animate-bounce delay-800 text-5xl">🏃‍♂️</span>
+        <span class="jumble animate-bounce delay-1000 text-5xl">🍽</span>
+    </div>
+    <p class="mt-6 text-xl font-semibold text-gray-800 animate-fade-in">Generating your personalized plan...</p>
+</div>
+            <!-- Main Form Card -->
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <div class="p-8">
+                    <!-- Change this line -->
+                    <form method="post" action="{% url 'diet_exercise:health-profile' %}" class="space-y-6">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information Section -->
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <span class="mr-2">👤</span> Basic Information
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="age">Age</label>
+                                    <input type="number" id="age" name="age" required
+                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                           value="{{ profile.age }}">
+                                </div>
+                                
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="gender">Gender</label>
+                                    <select id="gender" name="gender" required
+                                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                        <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>Male</option>
+                                        <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>Female</option>
+                                        <option value="other" {% if profile.gender == 'other' %}selected{% endif %}>Other</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="weight">Weight (kg)</label>
+                                    <input type="number" step="0.1" id="weight" name="weight" required
+                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                           value="{{ profile.weight }}">
+                                </div>
+                                
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="height">Height (cm)</label>
+                                    <input type="number" step="0.1" id="height" name="height" required
+                                           class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                           value="{{ profile.height }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Goals Section -->
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <span class="mr-2">🎯</span> Goals & Activity
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="activity_level">Activity Level</label>
+                                    <select id="activity_level" name="activity_level" required
+                                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                        <option value="sedentary" {% if profile.activity_level == 'sedentary' %}selected{% endif %}>Sedentary</option>
+                                        <option value="light" {% if profile.activity_level == 'light' %}selected{% endif %}>Lightly Active</option>
+                                        <option value="moderate" {% if profile.activity_level == 'moderate' %}selected{% endif %}>Moderately Active</option>
+                                        <option value="very" {% if profile.activity_level == 'very' %}selected{% endif %}>Very Active</option>
+                                        <option value="extra" {% if profile.activity_level == 'extra' %}selected{% endif %}>Extra Active</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="goal">Primary Goal</label>
+                                    <select id="goal" name="goal" required
+                                            class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                        <option value="weight_loss" {% if profile.goal == 'weight_loss' %}selected{% endif %}>Weight Loss</option>
+                                        <option value="weight_gain" {% if profile.goal == 'weight_gain' %}selected{% endif %}>Weight Gain</option>
+                                        <option value="maintenance" {% if profile.goal == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health Information Section -->
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <span class="mr-2">🏥</span> Health Information
+                            </h3>
+                            <div class="space-y-6">
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="medical_conditions">Medical Conditions</label>
+                                    <textarea id="medical_conditions" name="medical_conditions" rows="3"
+                                              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                              placeholder="List any medical conditions we should be aware of">{{ profile.medical_conditions }}</textarea>
+                                </div>
+                                
+                                <div class="group">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" for="dietary_restrictions">Dietary Restrictions</label>
+                                    <textarea id="dietary_restrictions" name="dietary_restrictions" rows="3"
+                                              class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                              placeholder="Any food allergies or dietary preferences">{{ profile.dietary_restrictions }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vitamin Deficiencies Section -->
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <span class="mr-2">💊</span> Vitamin Deficiencies
+                            </h3>
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {% for vitamin in vitamin_deficiencies %}
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" id="vitamin_{{ vitamin.id }}" name="vitamin_deficiencies" 
+                                               value="{{ vitamin.id }}"
+                                               {% if vitamin in profile.vitamin_deficiencies.all %}checked{% endif %}
+                                               class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                                        <label for="vitamin_{{ vitamin.id }}" class="text-sm text-gray-700">{{ vitamin.name }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Exercise Preferences Section -->
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <span class="mr-2">🏃‍♂️</span> Exercise Preferences
+                            </h3>
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {% for category in exercise_categories %}
+                                    <div class="flex items-center space-x-3">
+                                        <input type="checkbox" id="exercise_{{ category.id }}" name="exercise_categories" 
+                                               value="{{ category.id }}"
+                                               {% if category in profile.preferred_exercise_categories.all %}checked{% endif %}
+                                               class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                                        <label for="exercise_{{ category.id }}" class="text-sm text-gray-700">{{ category.name }}</label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Difficulty Level Section -->
+                        <div class="space-y-6">
+                            <h3 class="text-xl font-semibold text-gray-900 flex items-center">
+                                <span class="mr-2">📈</span> Exercise Intensity
+                            </h3>
+                            <div class="group">
+                                <label class="block text-sm font-medium text-gray-700 mb-2" for="difficulty">Preferred Difficulty Level</label>
+                                <select id="difficulty" name="difficulty" required
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200">
+                                    <option value="beginner">Beginner - I'm just starting out</option>
+                                    <option value="intermediate">Intermediate - I exercise regularly</option>
+                                    <option value="advanced">Advanced - I'm very experienced</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-6">
+                            <button type="submit" 
+                                    class="w-full bg-gradient-to-r from-blue-600 to-green-600 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Generate Your Personalized Plan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+        animation: fade-in 0.6s ease-out forwards;
+    }
+
+    /* Input focus styles */
+    .group:focus-within label {
+        color: #2563eb;
+    }
+
+    /* Hover effects */
+    .group:hover input:not(:focus),
+    .group:hover select:not(:focus),
+    .group:hover textarea:not(:focus) {
+        border-color: #93c5fd;
+    }
+
+    .jumble {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.jumble span {
+    position: absolute;
+    font-size: 2rem;
+    animation: jumbleMove 1.5s infinite ease-in-out alternate;
+}
+
+.jumble span:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+.jumble span:nth-child(2) { top: 30%; left: 50%; animation-delay: 0.2s; }
+.jumble span:nth-child(3) { top: 70%; left: 20%; animation-delay: 0.4s; }
+.jumble span:nth-child(4) { top: 50%; left: 80%; animation-delay: 0.6s; }
+.jumble span:nth-child(5) { top: 20%; left: 70%; animation-delay: 0.8s; }
+.jumble span:nth-child(6) { top: 80%; left: 40%; animation-delay: 1s; }
+
+@keyframes jumbleMove {
+    from { transform: translateY(-10px) rotate(-10deg); }
+    to { transform: translateY(10px) rotate(10deg); }
+}
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.animate-fade-in {
+    animation: fade-in 1s ease-in-out forwards;
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+/* Delay effect for staggered bouncing */
+.delay-0 { animation-delay: 0s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-800 { animation-delay: 0.8s; }
+.delay-1000 { animation-delay: 1s; }
+
+</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector("form");
+        const loader = document.getElementById("loading-screen");
+    
+        form.addEventListener("submit", function(event) {
+            // Show the loader
+            loader.classList.remove("hidden");
+    
+            // Hide the form
+            form.classList.add("hidden");
+        });
+    });
+    document.querySelector("form").addEventListener("submit", function() {
+        document.getElementById("loading-screen").classList.remove("hidden");
+    });
+    
+    </script>
+    
+    
+{% endblock %}

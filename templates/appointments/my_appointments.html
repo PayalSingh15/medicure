@@ -1,0 +1,188 @@
+{% extends 'users/sidebar.html' %}
+
+{% block page_title %}My Appointments{% endblock %}
+
+{% block dashboard_content %}
+{% csrf_token %}
+<div class="dashboard-card p-6">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-calendar-alt text-blue-500 text-3xl"></i>
+            <h2 class="text-2xl font-bold text-gray-800">My Appointments</h2>
+        </div>
+        <a href="{% url 'book-appointment' %}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition flex items-center">
+            <i class="fas fa-plus mr-2"></i> Book New Appointment
+        </a>
+    </div>
+
+    <!-- Appointment Filters -->
+    <div class="mb-6 flex justify-between items-center">
+        <div class="flex space-x-4">
+            <select class="px-4 py-2 border rounded-lg" id="statusFilter">
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="rejected">Rejected</option>
+            </select>
+            <input type="date" class="px-4 py-2 border rounded-lg" id="dateFilter">
+        </div>
+        <div class="text-gray-600">
+            Total Appointments: <span id="appointmentCount">{{ appointments.count }}</span>
+        </div>
+    </div>
+
+    <!-- Appointments Grid -->
+    {% if appointments %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="appointmentsGrid">
+            {% for appointment in appointments %}
+                <div class="appointment-card bg-white shadow-lg rounded-lg p-6 border-l-4 
+                    {% if appointment.status == 'confirmed' %}border-green-500
+                    {% elif appointment.status == 'pending' %}border-yellow-500
+                    {% elif appointment.status == 'rejected' %}border-red-500
+                    {% endif %}
+                    transform transition hover:scale-105 hover:shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-full overflow-hidden">
+                                <img src="{{ appointment.doctor.profile_picture.url|default:'/static/images/default-doctor.png' }}" 
+                                     alt="{{ appointment.doctor.get_full_name }}" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-800">
+                                    Dr. {{ appointment.doctor.get_full_name }}
+                                </h3>
+                                <p class="text-sm text-gray-500">{{ appointment.doctor.specialty }}</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium 
+                            {% if appointment.status == 'confirmed' %}bg-green-100 text-green-800
+                            {% elif appointment.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif appointment.status == 'rejected' %}bg-red-100 text-red-800
+                            {% endif %}">
+                            {{ appointment.status|title }}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-calendar mr-2 text-blue-500"></i>
+                            <span>{{ appointment.date|date:"D, M d, Y" }}</span>
+                        </div>
+                        <div class="flex items-center text-gray-600">
+                            <i class="fas fa-clock mr-2 text-green-500"></i>
+                            <span>{{ appointment.time }}</span>
+                        </div>
+                    </div>
+
+                    {% if appointment.status == 'pending' %}
+                        <div class="flex space-x-2">
+                            <button 
+                                data-appointment-id="{{ appointment.id }}" 
+                                class="cancel-btn w-full bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                                <i class="fas fa-times mr-2"></i>Cancel Appointment
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-12 bg-gray-50 rounded-lg">
+            <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-semibold text-gray-600 mb-2">No Appointments Found</h3>
+            <p class="text-gray-500">You haven't booked any appointments yet.</p>
+            <a href="{% url 'book-appointment' %}" class="mt-4 inline-block bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
+                Book Your First Appointment
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const appointmentsGrid = document.getElementById('appointmentsGrid');
+    const appointmentCards = appointmentsGrid ? appointmentsGrid.querySelectorAll('.appointment-card') : [];
+
+    function filterAppointments() {
+        const selectedStatus = statusFilter.value;
+        const selectedDate = dateFilter.value;
+
+        appointmentCards.forEach(card => {
+            const cardStatus = card.querySelector('.rounded-full').textContent.toLowerCase().trim();
+            const cardDate = card.querySelector('.fa-calendar').nextElementSibling.textContent;
+
+            const statusMatch = selectedStatus === '' || cardStatus === selectedStatus;
+            const dateMatch = selectedDate === '' || cardDate.includes(selectedDate);
+
+            card.style.display = statusMatch && dateMatch ? 'block' : 'none';
+        });
+
+        // Update appointment count
+        const visibleAppointments = Array.from(appointmentCards).filter(card => card.style.display !== 'none');
+        document.getElementById('appointmentCount').textContent = visibleAppointments.length;
+    }
+
+    statusFilter.addEventListener('change', filterAppointments);
+    dateFilter.addEventListener('change', filterAppointments);
+
+    // Add cancel appointment functionality
+     // Updated cancel appointment functionality
+     document.querySelectorAll('.cancel-btn').forEach(button => {
+        button.addEventListener('click', async function(e) {
+            e.preventDefault();
+            const appointmentId = this.dataset.appointmentId;
+            
+            try {
+                if (!confirm('Are you sure you want to cancel this appointment?')) {
+                    return;
+                }
+
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                if (!csrfToken) {
+                    throw new Error('CSRF token not found');
+                }
+
+                const response = await fetch(`/appointments/cancel/${appointmentId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to cancel appointment');
+                }
+
+                // Show success message
+                alert('Appointment cancelled successfully!');
+                
+                // Either reload the page or remove the appointment card
+                const appointmentCard = this.closest('.appointment-card');
+                if (appointmentCard) {
+                    appointmentCard.remove();
+                    // Update the appointment count
+                    const countElement = document.getElementById('appointmentCount');
+                    if (countElement) {
+                        countElement.textContent = parseInt(countElement.textContent) - 1;
+                    }
+                } else {
+                    window.location.reload();
+                }
+
+            } catch (error) {
+                console.error('Error cancelling appointment:', error);
+                alert(`Error cancelling appointment: ${error.message}`);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

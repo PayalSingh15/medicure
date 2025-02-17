@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
+        <!-- Email Icon -->
+        <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+        </div>
+
+        <!-- Main Content -->
+        <h2 class="text-3xl font-bold text-gray-900 text-center mb-2">Verify Your Email</h2>
+        <p class="text-gray-600 text-center mb-6">
+            We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.
+        </p>
+
+        <!-- Timer Info -->
+        <div class="bg-blue-50 rounded-md p-4 mb-6">
+            <div class="text-blue-800 text-sm flex flex-col items-center justify-center">
+                <div class="flex items-center mb-2">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Time remaining:</span>
+                </div>
+                <div id="countdown" class="text-2xl font-bold text-blue-600">10:00</div>
+            </div>
+        </div>
+
+        <!-- Resend Form -->
+        <div class="text-center">
+            <p class="text-gray-700 mb-3">Haven't received the email?</p>
+            <form method="POST" action="{% url 'resend_verification' %}" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ request.user.email }}">
+                <button type="submit" id="resendButton"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 ease-in-out transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    Resend Verification Email
+                </button>
+            </form>
+        </div>
+
+        <!-- Help Text -->
+        <p class="mt-6 text-sm text-gray-500 text-center">
+            If you're still having trouble, please 
+            <a href="#" class="text-blue-600 hover:text-blue-800 font-medium">contact support</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set the timer duration (10 minutes in milliseconds)
+        let timeLeft = 10 * 60;
+        const countdownEl = document.getElementById('countdown');
+        const resendButton = document.getElementById('resendButton');
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            
+            // Format the time to always show two digits
+            countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                countdownEl.textContent = '00:00';
+                countdownEl.classList.add('text-red-600');
+                resendButton.disabled = false;
+                resendButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                timeLeft--;
+            }
+        }
+
+        // Disable resend button during countdown
+        resendButton.addEventListener('click', function() {
+            resendButton.disabled = true;
+            resendButton.classList.add('opacity-50', 'cursor-not-allowed');
+            timeLeft = 10 * 60; // Reset timer to 10 minutes
+            updateTimer();
+        });
+        
+        // Update the countdown every second
+        const timerInterval = setInterval(updateTimer, 1000);
+        
+        // Initial timer update
+        updateTimer();
+    });
+</script>
+{% endblock %}

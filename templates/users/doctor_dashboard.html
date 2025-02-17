@@ -1,0 +1,552 @@
+{% extends 'users/sidebar.html' %}
+
+{% block title %}Doctor Dashboard - MediCure{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        background-color: #F4F7FA;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .gradient-bg {
+        background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+    }
+
+    .status-badge {
+        transition: all 0.3s ease;
+    }
+
+    .status-badge:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container mx-auto px-4 py-12">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-blue-600">Doctor Dashboard</h1>
+        <p class="text-gray-600 mt-2">Manage your appointments, patient schedule, and more</p>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6 card">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Pending Appointments</h3>
+            <p class="text-3xl font-bold text-blue-600" id="pendingCount">0</p>
+            <p class="text-sm text-gray-500 mt-1" id="pendingUpdateTime"></p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 card">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Today's Appointments</h3>
+            <p class="text-3xl font-bold text-green-600" id="todayCount">0</p>
+            <p class="text-sm text-gray-500 mt-1" id="todayUpdateTime"></p>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6 card">
+            <h3 class="text-lg font-semibold text-gray-700 mb-2">Total Appointments</h3>
+            <p class="text-3xl font-bold text-purple-600" id="totalCount">0</p>
+            <p class="text-sm text-gray-500 mt-1" id="totalUpdateTime"></p>
+        </div>
+    </div>
+
+    <!-- Quick Access Sections -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Appointment Requests Section -->
+        <div class="p-6 bg-white shadow-lg rounded-lg card">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-calendar-plus text-2xl text-red-600 mr-3"></i>
+                <h3 class="text-xl font-semibold text-red-600">Appointment Requests</h3>
+            </div>
+            <p class="text-gray-600 mb-4">Manage pending appointment requests from patients.</p>
+            <a href="{% url 'doctor-appointments' %}" class="inline-flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                <i class="fas fa-arrow-right mr-2"></i>
+                View Requests
+            </a>
+        </div>
+
+        <!-- Approved Patients Section -->
+        <div class="p-6 bg-white shadow-lg rounded-lg card">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-user-check text-2xl text-green-600 mr-3"></i>
+                <h3 class="text-xl font-semibold text-green-600">Approved Patients</h3>
+            </div>
+            <p class="text-gray-600 mb-4">View and manage your confirmed appointments.</p>
+            <a href="{% url 'approved-patients' %}" class="inline-flex items-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                <i class="fas fa-arrow-right mr-2"></i>
+                View Patients
+            </a>
+        </div>
+
+        <!-- Medical Reports Section -->
+        <div class="p-6 bg-white shadow-lg rounded-lg card">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-file-medical text-2xl text-purple-600 mr-3"></i>
+                <h3 class="text-xl font-semibold text-purple-600">Medical Reports</h3>
+            </div>
+            <p class="text-gray-600 mb-4">Access and manage patient medical records.</p>
+            <a href="{% url 'approved-patients' %}" class="inline-flex items-center bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition">
+                <i class="fas fa-arrow-right mr-2"></i>
+                View Reports
+            </a>
+        </div>
+    </div>
+
+    <!-- Appointment Management Section -->
+    <div class="bg-white rounded-lg shadow mt-8 card">
+        <div class="p-6 border-b">
+            <div class="flex items-center">
+                <i class="fas fa-calendar-alt text-2xl text-blue-600 mr-3"></i>
+                <h2 class="text-xl font-semibold">Manage Appointments</h2>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="p-6 border-b bg-gray-50">
+            <div class="flex flex-wrap gap-4">
+                <select id="statusFilter" class="rounded-lg border-gray-300 text-gray-700 px-4 py-2">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <input type="date" id="dateFilter" class="rounded-lg border-gray-300 px-4 py-2">
+                <button onclick="refreshAppointments()" class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-sync-alt mr-2"></i>
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Appointments Table -->
+        <div class="overflow-x-auto">
+            <table class="w-full" id="appointmentsTable">
+                <thead class="bg-gray-50 border-b">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Patient</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Date</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Time</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Status</th>
+                        <th class="px-6 py-4 text-left text-sm font-medium text-gray-500">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y" id="appointmentsBody">
+                    <!-- Appointments will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden p-8 text-center">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p class="mt-2 text-gray-600">Loading appointments...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden p-8 text-center">
+            <div class="flex flex-col items-center">
+                <i class="fas fa-calendar-times text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-600">No appointments found</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variables
+let currentAppointments = [];
+const DATE_FORMAT_OPTIONS = { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+};
+
+// Initial load
+document.addEventListener('DOMContentLoaded', function() {
+    refreshAppointments();
+    // Refresh appointments every 5 minutes
+    setInterval(refreshAppointments, 300000);
+});
+
+// Add this to your refreshAppointments function
+async function refreshAppointments() {
+    showLoading(true);
+    
+    try {
+        const csrfToken = getCookie('csrftoken');
+        if (!csrfToken) {
+            throw new Error('CSRF token not found - please refresh the page');
+        }
+        
+        const status = document.getElementById('statusFilter')?.value || 'all';
+        const date = document.getElementById('dateFilter')?.value || '';
+        
+        const response = await fetch(`/appointments/manage/?status=${encodeURIComponent(status)}&date=${encodeURIComponent(date)}`, {
+            headers: {
+                'X-CSRFToken': csrfToken
+            }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch appointments');
+        
+        const data = await response.json();
+        
+        // Validate received data
+        if (!Array.isArray(data)) {
+            throw new Error('Invalid data format received from server');
+        }
+        
+        // Debug log the first few appointments
+        console.log('Sample of received appointments:', 
+            data.slice(0, 3).map(a => ({
+                id: a.id,
+                date: a.date,
+                status: a.status
+            }))
+        );
+        
+        currentAppointments = data;
+        updateStats(data);
+        renderAppointments(data);
+        updateLastRefreshTime();
+        
+    } catch (error) {
+        console.error('Error in refreshAppointments:', error);
+        alert(error.message || 'Failed to load appointments');
+    } finally {
+        showLoading(false);
+    }
+}
+
+function updateLastRefreshTime() {
+    const timeString = new Date().toLocaleTimeString();
+    const elements = ['pendingUpdateTime', 'todayUpdateTime', 'totalUpdateTime'];
+    elements.forEach(id => {
+        document.getElementById(id).textContent = `Last updated: ${timeString}`;
+    });
+}
+
+function isSameDay(date1, date2) {
+    return date1.getFullYear() === date2.getFullYear() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getDate() === date2.getDate();
+}
+
+// Utility function to normalize a date by removing time component
+function normalizeDate(date) {
+    if (!date) return null;
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
+}
+
+// Defensive date parsing function
+function parseDate(dateStr) {
+    if (!dateStr) return null;
+    
+    try {
+        // Handle different date formats
+        const parsedDate = new Date(dateStr);
+        
+        // Check if date is valid
+        if (isNaN(parsedDate.getTime())) {
+            console.warn(`Invalid date string: ${dateStr}`);
+            return null;
+        }
+        
+        return parsedDate;
+    } catch (error) {
+        console.error(`Error parsing date: ${dateStr}`, error);
+        return null;
+    }
+}
+
+// Improved isToday function with defensive programming
+function isToday(dateStr) {
+    // Debug logging
+    console.log('Checking if date is today:', dateStr);
+    
+    // Guard clause for invalid input
+    if (!dateStr) {
+        console.warn('Empty or null date provided to isToday');
+        return false;
+    }
+    
+    try {
+        const appointmentDate = parseDate(dateStr);
+        const today = new Date();
+        
+        // Guard clause for invalid parsed date
+        if (!appointmentDate) {
+            console.warn('Could not parse appointment date:', dateStr);
+            return false;
+        }
+        
+        // Normalize both dates to compare just the date portion
+        const normalizedAppointment = normalizeDate(appointmentDate);
+        const normalizedToday = normalizeDate(today);
+        
+        // Debug logging
+        console.log('Date comparison:', {
+            originalDateStr: dateStr,
+            appointmentDate: normalizedAppointment?.toISOString(),
+            today: normalizedToday?.toISOString(),
+            isMatch: normalizedAppointment?.getTime() === normalizedToday?.getTime()
+        });
+        
+        return normalizedAppointment?.getTime() === normalizedToday?.getTime();
+        
+    } catch (error) {
+        console.error('Error in isToday function:', error);
+        return false;
+    }
+}
+
+// Improved updateStats function with defensive programming
+function updateStats(appointments) {
+    console.log('Updating stats with appointments:', appointments);
+    
+    try {
+        // Guard clause for invalid input
+        if (!Array.isArray(appointments)) {
+            console.error('Invalid appointments data:', appointments);
+            return;
+        }
+        
+        // Count pending appointments with validation
+        const pending = appointments.filter(a => {
+            if (!a || typeof a.status !== 'string') {
+                console.warn('Invalid appointment object:', a);
+                return false;
+            }
+            return a.status.toLowerCase() === 'pending';
+        }).length;
+        
+        // Count today's appointments with detailed logging
+        const today = appointments.filter(a => {
+            if (!a || !a.date) {
+                console.warn('Invalid appointment or missing date:', a);
+                return false;
+            }
+            
+            const isForToday = isToday(a.date);
+            console.log('Appointment date check:', {
+                appointmentId: a.id,
+                date: a.date,
+                isForToday: isForToday
+            });
+            return isForToday;
+        }).length;
+        
+        // Update UI elements with validation
+        const elements = {
+            'pendingCount': pending,
+            'todayCount': today,
+            'totalCount': appointments.length
+        };
+        
+        Object.entries(elements).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            } else {
+                console.error(`Element not found: ${id}`);
+            }
+        });
+        
+        // Debug logging
+        console.log('Stats updated successfully:', {
+            pending,
+            today,
+            total: appointments.length
+        });
+        
+    } catch (error) {
+        console.error('Error updating stats:', error);
+        // Set default values in case of error
+        ['pendingCount', 'todayCount', 'totalCount'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = '0';
+        });
+    }
+}
+
+function renderAppointments(appointments) {
+    const tbody = document.getElementById('appointmentsBody');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (!appointments || appointments.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+    tbody.innerHTML = appointments.map(appointment => `        
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-user text-gray-500"></i>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">${escapeHtml(appointment.patient_name)}</div>
+                        <div class="text-sm text-gray-500">${escapeHtml(appointment.patient_email)}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatDate(appointment.date)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatTime(appointment.time)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(appointment.status)}">
+                    ${getStatusIcon(appointment.status)}
+                    ${escapeHtml(appointment.status)}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                ${getActionButtons(appointment)}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function getStatusIcon(status) {
+    const icons = {
+        pending: '<i class="fas fa-clock mr-1"></i>',
+        confirmed: '<i class="fas fa-check mr-1"></i>',
+        rejected: '<i class="fas fa-times mr-1"></i>',
+        cancelled: '<i class="fas fa-ban mr-1"></i>'
+    };
+    return icons[status] || icons.pending;
+}
+
+async function updateAppointmentStatus(appointmentId, newStatus) {
+    try {
+        const csrfToken = getCookie('csrftoken');
+        if (!csrfToken) {
+            throw new Error('CSRF token not found - please refresh the page');
+        }
+
+        const response = await fetch(`/appointments/manage/${appointmentId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) throw new Error('Failed to update appointment');
+
+        await refreshAppointments();
+    } catch (error) {
+        console.error('Error:', error);
+        alert(error.message || 'Failed to update appointment status');
+    }
+}
+
+// Utility functions
+function showLoading(show) {
+    document.getElementById('loadingState').classList.toggle('hidden', !show);
+    document.getElementById('appointmentsTable').classList.toggle('hidden', show);
+}
+
+function formatDate(dateStr) {
+    try {
+        return new Date(dateStr).toLocaleDateString(undefined, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    } catch (error) {
+        console.error('Date formatting error:', error);
+        return dateStr;
+    }
+}
+
+function formatTime(timeStr) {
+    try {
+        const [hours, minutes] = timeStr.split(':');
+        return new Date(0, 0, 0, hours, minutes).toLocaleTimeString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (error) {
+        console.error('Time formatting error:', error);
+        return timeStr;
+    }
+}
+
+function getStatusClass(status) {
+    const classes = {
+        pending: 'bg-yellow-100 text-yellow-800',
+        confirmed: 'bg-green-100 text-green-800',
+        rejected: 'bg-red-100 text-red-800',
+        cancelled: 'bg-gray-100 text-gray-800'
+    };
+    return classes[status] || classes.pending;
+}
+
+function getActionButtons(appointment) {
+    if (appointment.status !== 'pending') return '';
+    
+    return `
+        <button onclick="updateAppointmentStatus(${appointment.id}, 'confirmed')"
+                class="text-green-600 hover:text-green-900 mr-3">
+            <i class="fas fa-check mr-1"></i>Confirm
+        </button>
+        <button onclick="updateAppointmentStatus(${appointment.id}, 'rejected')"
+                class="text-red-600 hover:text-red-900">
+            <i class="fas fa-times mr-1"></i>Reject
+        </button>
+    `;
+}
+
+function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

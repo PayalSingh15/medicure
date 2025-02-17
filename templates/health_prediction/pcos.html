@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+    .form-container {
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    .input-field {
+        transition: all 0.3s ease;
+    }
+    .input-field:focus {
+        border-color: #818cf8;
+        box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.1);
+    }
+    .floating-label {
+        transition: all 0.2s ease;
+    }
+    .progress-bar {
+        transition: width 0.5s ease-in-out;
+    }
+    .form-appear {
+        animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .step-indicator {
+        transition: all 0.3s ease;
+    }
+    .step-indicator.active {
+        color: #4f46e5;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-8 px-4">
+    <div class="max-w-3xl mx-auto">
+        <div class="form-container rounded-2xl overflow-hidden">
+            <div class="p-8 md:p-12">
+                <!-- Header Section -->
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        PCOS Health Assessment
+                    </h2>
+                    <p class="mt-3 text-gray-600">Complete this confidential assessment for personalized health insights</p>
+                </div>
+
+                <!-- Progress Tracker -->
+                <div class="mb-10">
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 progress-bar"></div>
+                    </div>
+                    <div class="flex justify-between mt-4">
+                        <div class="flex space-x-4">
+                            {% for i in '12345' %}
+                            <span class="step-indicator text-sm text-gray-500">Step {{ i }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <form id="pcosForm" method="post" action="{% url 'pcos' %}" class="space-y-8">
+                    {% csrf_token %}
+
+                    <!-- Step 1: Basic Information -->
+                    <div class="form-step" id="step1">
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Age</label>
+                                <input type="number" 
+                                       name="Age (in Years)" 
+                                       class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                       required>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Weight (kg)</label>
+                                <input type="number" 
+                                       name="Weight (in Kg)" 
+                                       step="0.1"
+                                       class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                       required>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Height (cm)</label>
+                                <input type="number" 
+                                       name="Height (in Cm)" 
+                                       step="0.1"
+                                       class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Menstrual History -->
+                    <div class="form-step hidden" id="step2">
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Period Regularity (months)</label>
+                                <input type="number" 
+                                       name="After how many months do you get your periods?" 
+                                       class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                       required>
+                                <p class="mt-1 text-sm text-gray-500">Enter 1 if regular monthly periods</p>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Recent Weight Gain</label>
+                                <select name="Have you gained weight recently?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Hair Growth</label>
+                                <select name="Do you have excessive body/facial hair growth?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Physical Changes -->
+                    <div class="form-step hidden" id="step3">
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Skin Darkening</label>
+                                <select name="Are you noticing skin darkening recently?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Hair Loss</label>
+                                <select name="Do have hair loss/hair thinning/baldness?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Acne</label>
+                                <select name="Do you have pimples/acne?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Lifestyle -->
+                    <div class="form-step hidden" id="step4">
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Fast Food Consumption</label>
+                                <select name="Do you eat fast food regularly?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Exercise Routine</label>
+                                <select name="Do you exercise regularly?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Mood Swings</label>
+                                <select name="Do you experience mood swings?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5: Additional Information -->
+                    <div class="form-step hidden" id="step5">
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Regular Periods</label>
+                                <select name="Are your periods regular?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select an option</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Period Duration (days)</label>
+                                <input type="number" 
+                                       name="How long does your period last? (in Days)" 
+                                       class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                       required>
+                            </div>
+                            <div class="relative">
+                                <label class="text-sm font-medium text-gray-700 mb-1 block">Blood Group</label>
+                                <select name="Can you tell us your blood group?" 
+                                        class="input-field w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:outline-none"
+                                        required>
+                                    <option value="">Select blood group</option>
+                                    <option value="1">A+</option>
+                                    <option value="2">A-</option>
+                                    <option value="3">B+</option>
+                                    <option value="4">B-</option>
+                                    <option value="5">AB+</option>
+                                    <option value="6">AB-</option>
+                                    <option value="7">O+</option>
+                                    <option value="8">O-</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between pt-8">
+                        <button type="button" 
+                                id="prevBtn" 
+                                class="hidden px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-xl hover:bg-indigo-50 transition-all">
+                            Previous
+                        </button>
+                        <button type="button" 
+                                id="nextBtn" 
+                                class="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all">
+                            Continue
+                        </button>
+                        <button type="submit" 
+                                id="submitBtn" 
+                                class="hidden px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all">
+                            Complete Assessment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="mt-6 text-center text-sm text-gray-500">
+            <p>This assessment is for informational purposes only and should not replace professional medical advice.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('pcosForm');
+    const steps = document.querySelectorAll('.form-step');
+    const nextBtn = document.getElementById('nextBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const progressBar = document.getElementById('progress-bar');
+    const stepIndicators = document.querySelectorAll('.step-indicator');
+    let currentStep = 0;
+
+    function showStep(step) {
+        steps.forEach((s, index) => {
+            s.classList.toggle('hidden', index !== step);
+            if (index === step) {
+                s.classList.add('form-appear');
+            }
+        });
+
+        // Update step indicators
+        stepIndicators.forEach((indicator, index) => {
+            indicator.classList.toggle('active', index === step);
+        });
+
+        // Update buttons
+        prevBtn.classList.toggle('hidden', step === 0);
+        nextBtn.classList.toggle('hidden', step === steps.length - 1);
+        submitBtn.classList.toggle('hidden', step !== steps.length - 1);
+
+        // Update progress bar
+        const progress = ((step + 1) / steps.length) * 100;
+        progressBar.style.width = `${progress}%`;
+    }
+
+    function validateStep(step) {
+        const currentInputs = steps[step].querySelectorAll('input, select');
+        let isValid = true;
+        
+        currentInputs.forEach(input => {
+            if (!input.value) {
+                isValid = false;
+                input.classList.add('border-red-500');
+            } else {
+                input.classList.remove('border-red-500');
+            }
+        });
+        
+        return isValid;
+    }
+
+    nextBtn.addEventListener('click', () => {
+        if (validateStep(currentStep)) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    });
+
+    prevBtn.addEventListener('click', () => {
+        currentStep--;
+        showStep(currentStep);
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (validateStep(currentStep)) {
+            // Submit the form
+            form.submit();
+        }
+    });
+
+    // Initialize the form
+    showStep(currentStep);
+});
+</script>
+{% endblock %}

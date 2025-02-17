@@ -1,0 +1,89 @@
+INFO 2025-02-08 02:16:29,003 autoreload 37668 13804 Watching for file changes with StatReloader
+INFO 2025-02-08 02:16:41,757 basehttp 37668 20508 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:16:41,842 basehttp 37668 20508 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:16:57,592 autoreload 37668 13804 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:16:59,234 autoreload 28800 25912 Watching for file changes with StatReloader
+INFO 2025-02-08 02:17:13,580 basehttp 28800 38512 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:17:13,638 basehttp 28800 38512 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:17:39,432 autoreload 28800 25912 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:17:41,069 autoreload 3616 39544 Watching for file changes with StatReloader
+INFO 2025-02-08 02:18:26,341 basehttp 3616 37036 "POST /exercise/generate-plans/ HTTP/1.1" 200 52890
+INFO 2025-02-08 02:18:46,064 basehttp 3616 31716 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166
+INFO 2025-02-08 02:20:45,087 autoreload 3616 39544 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:20:46,824 autoreload 33384 21708 Watching for file changes with StatReloader
+INFO 2025-02-08 02:21:24,484 basehttp 33384 29364 "POST /exercise/generate-plans/ HTTP/1.1" 200 52548
+INFO 2025-02-08 02:23:27,044 autoreload 33384 21708 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:23:28,751 autoreload 24500 29056 Watching for file changes with StatReloader
+INFO 2025-02-08 02:23:46,067 basehttp 24500 38720 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166
+INFO 2025-02-08 02:24:09,949 basehttp 24500 25128 "POST /exercise/generate-plans/ HTTP/1.1" 200 53272
+INFO 2025-02-08 02:25:34,744 autoreload 24500 29056 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:25:36,353 autoreload 33932 6968 Watching for file changes with StatReloader
+INFO 2025-02-08 02:25:45,489 basehttp 33932 20340 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:26:29,679 basehttp 33932 20340 "POST /exercise/generate-plans/ HTTP/1.1" 200 52653
+INFO 2025-02-08 02:28:45,965 autoreload 33932 6968 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:28:47,572 autoreload 14024 31332 Watching for file changes with StatReloader
+INFO 2025-02-08 02:29:12,664 basehttp 14024 35616 "POST /exercise/generate-plans/ HTTP/1.1" 200 52654
+INFO 2025-02-08 02:30:39,545 autoreload 14024 31332 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:30:41,257 autoreload 16964 32712 Watching for file changes with StatReloader
+INFO 2025-02-08 02:30:51,444 basehttp 16964 31392 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:30:51,498 basehttp 16964 31392 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:31:03,687 autoreload 16964 32712 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:31:05,322 autoreload 34208 12160 Watching for file changes with StatReloader
+INFO 2025-02-08 02:31:14,863 basehttp 34208 33520 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:31:14,920 basehttp 34208 33520 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:31:26,316 autoreload 34208 12160 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:31:27,923 autoreload 11160 10960 Watching for file changes with StatReloader
+INFO 2025-02-08 02:31:37,500 basehttp 11160 33704 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:31:37,558 basehttp 11160 33704 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:32:05,430 autoreload 11160 10960 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:32:07,013 autoreload 38604 28332 Watching for file changes with StatReloader
+INFO 2025-02-08 02:32:22,201 basehttp 38604 2672 "POST /exercise/generate-plans/ HTTP/1.1" 200 53287
+INFO 2025-02-08 02:32:26,925 basehttp 38604 2672 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:32:37,893 autoreload 38604 28332 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:32:39,474 autoreload 38600 28116 Watching for file changes with StatReloader
+INFO 2025-02-08 02:32:51,265 basehttp 38600 9824 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:32:51,331 basehttp 38600 9824 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:33:46,087 basehttp 38600 37876 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166
+INFO 2025-02-08 02:35:40,228 autoreload 38600 28116 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:35:40,944 autoreload 17308 37124 Watching for file changes with StatReloader
+INFO 2025-02-08 02:35:49,444 autoreload 17308 37124 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:35:50,110 autoreload 18076 8852 Watching for file changes with StatReloader
+INFO 2025-02-08 02:36:01,434 basehttp 18076 33332 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:36:01,457 basehttp 18076 33332 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:36:10,182 autoreload 18076 8852 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:36:10,913 autoreload 20552 34456 Watching for file changes with StatReloader
+INFO 2025-02-08 02:36:23,694 autoreload 20552 34456 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:36:24,381 autoreload 24140 11044 Watching for file changes with StatReloader
+INFO 2025-02-08 02:36:44,331 basehttp 24140 732 "POST /exercise/generate-plans/ HTTP/1.1" 200 53255
+INFO 2025-02-08 02:36:59,806 autoreload 24140 11044 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:37:00,706 autoreload 27472 25660 Watching for file changes with StatReloader
+INFO 2025-02-08 02:37:12,739 basehttp 27472 17424 "POST /exercise/generate-plans/ HTTP/1.1" 200 53233
+INFO 2025-02-08 02:37:24,803 autoreload 27472 25660 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:37:25,642 autoreload 24336 29280 Watching for file changes with StatReloader
+INFO 2025-02-08 02:37:40,424 basehttp 24336 16676 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:37:40,456 basehttp 24336 16676 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:37:45,023 autoreload 24336 29280 D:\Medicure\diet_exercise\constants\nutrition_data.py changed, reloading.
+INFO 2025-02-08 02:37:45,753 autoreload 21088 12416 Watching for file changes with StatReloader
+INFO 2025-02-08 02:38:03,588 basehttp 21088 31520 "POST /exercise/generate-plans/ HTTP/1.1" 200 52051
+INFO 2025-02-08 02:38:46,053 basehttp 21088 14392 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166
+INFO 2025-02-08 02:41:09,586 autoreload 21088 12416 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:41:10,323 autoreload 27364 36844 Watching for file changes with StatReloader
+INFO 2025-02-08 02:41:16,497 basehttp 27364 31536 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:41:22,261 basehttp 27364 31536 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:41:22,283 basehttp 27364 31536 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:41:32,868 autoreload 27364 36844 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:41:33,598 autoreload 36500 36196 Watching for file changes with StatReloader
+INFO 2025-02-08 02:41:47,164 basehttp 36500 9112 "POST /exercise/generate-plans/ HTTP/1.1" 200 52703
+INFO 2025-02-08 02:42:40,338 autoreload 36500 36196 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:42:41,078 autoreload 10580 23268 Watching for file changes with StatReloader
+INFO 2025-02-08 02:43:38,369 basehttp 10580 31440 "POST /exercise/generate-plans/ HTTP/1.1" 200 53926
+INFO 2025-02-08 02:43:46,061 basehttp 10580 19340 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166
+INFO 2025-02-08 02:43:46,156 basehttp 10580 31440 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:43:53,268 autoreload 10580 23268 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:43:54,084 autoreload 27628 21048 Watching for file changes with StatReloader
+INFO 2025-02-08 02:44:30,351 basehttp 27628 23020 "POST /exercise/generate-plans/ HTTP/1.1" 302 0
+INFO 2025-02-08 02:44:30,376 basehttp 27628 23020 "GET /exercise/health-profile/ HTTP/1.1" 200 30923
+INFO 2025-02-08 02:48:46,063 basehttp 27628 39564 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166
+INFO 2025-02-08 02:50:36,934 autoreload 27628 21048 D:\Medicure\diet_exercise\services\diet_service.py changed, reloading.
+INFO 2025-02-08 02:50:37,669 autoreload 5172 38200 Watching for file changes with StatReloader
+INFO 2025-02-08 02:53:46,064 basehttp 5172 14880 "GET /appointments/manage/?status=all&date= HTTP/1.1" 200 166

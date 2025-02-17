@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Inter', sans-serif;
+    }
+    .appointment-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .doctor-card {
+        transition: all 0.4s ease;
+        transform-style: preserve-3d;
+        cursor: pointer;
+    }
+    .doctor-card:hover {
+        transform: translateY(-15px) rotateX(5deg) scale(1.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .animated-input {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    .animated-input:focus {
+        border-color: #3B82F6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    .status-badge {
+        transition: all 0.3s ease;
+    }
+    .pulse-animation {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-6">
+    <div class="appointment-container w-full max-w-6xl mx-auto grid md:grid-cols-3 gap-8 p-8">
+        <!-- Doctor Selection Section -->
+        <div class="col-span-1">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                <i class="fas fa-user-md mr-3 text-blue-500"></i>Select Doctor
+            </h2>
+            
+            <div id="doctorList" class="space-y-4">
+                <!-- Dynamically populated doctor cards -->
+            </div>
+        </div>
+
+        <!-- Appointment Booking Form -->
+        <div class="col-span-2 bg-white rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                <i class="fas fa-calendar-plus mr-3 text-green-500"></i>Book Appointment
+            </h2>
+
+            <form id="appointmentForm" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Selected Doctor Display -->
+                <div id="selectedDoctorDisplay" class="hidden bg-blue-50 p-4 rounded-lg mb-4 flex items-center">
+                    <img id="selectedDoctorImage" class="w-16 h-16 rounded-full mr-4" src="" alt="Doctor">
+                    <div>
+                        <h3 id="selectedDoctorName" class="text-xl font-semibold"></h3>
+                        <p id="selectedDoctorSpecialty" class="text-gray-600"></p>
+                    </div>
+                </div>
+
+                <!-- Doctor Selection -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Select Doctor</label>
+                    <select 
+                        name="doctor" 
+                        id="doctorSelect" 
+                        class="w-full p-3 border-2 rounded-lg animated-input focus:outline-none" 
+                        required
+                    >
+                        <option value="">Select a doctor...</option>
+                        <option value="">Select a doctor...</option>
+                        <option value="">Select a doctor...</option>
+                    </select>
+                </div>
+
+                <!-- Date Selection -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Appointment Date</label>
+                    <input 
+                        type="date" 
+                        name="date" 
+                        id="dateInput" 
+                        class="w-full p-3 border-2 rounded-lg animated-input focus:outline-none"
+                        min="{{ min_date }}" 
+                        required
+                    >
+                </div>
+
+                <!-- Time Selection -->
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Preferred Time</label>
+                    <select 
+                        name="time" 
+                        id="timeSelect" 
+                        class="w-full p-3 border-2 rounded-lg animated-input focus:outline-none" 
+                        required
+                    >
+                        <option value="">Select time...</option>
+                        <option value="09:00">9:00 AM - Morning Slot</option>
+                        <option value="10:00">10:00 AM - Morning Slot</option>
+                        <option value="11:00">11:00 AM - Late Morning Slot</option>
+                        <option value="14:00">2:00 PM - Afternoon Slot</option>
+                        <option value="15:00">3:00 PM - Afternoon Slot</option>
+                        <option value="16:00">4:00 PM - Evening Slot</option>
+                    </select>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg 
+                           hover:from-blue-600 hover:to-purple-700 transition duration-300 
+                           transform hover:scale-105 active:scale-95 pulse-animation"
+                >
+                    Book Appointment
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const appointmentForm = document.getElementById('appointmentForm');
+    const doctorSelect = document.getElementById('doctorSelect');
+    const dateInput = document.getElementById('dateInput');
+    const timeSelect = document.getElementById('timeSelect');
+    const selectedDoctorDisplay = document.getElementById('selectedDoctorDisplay');
+
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    if (dateInput) {
+        dateInput.min = today;
+    }
+
+    // Get doctor_id from URL if present
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedDoctorId = urlParams.get('doctor_id');
+
+    // Fetch available doctors
+    fetch('/users/doctors/api/')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(doctors => {
+            if (!doctorSelect) return; // Defensive check
+            
+            doctorSelect.innerHTML = '<option value="">Select a doctor...</option>';
+            doctors.forEach(doctor => {
+    const option = document.createElement('option');
+    option.value = doctor.user_id;  // Changed from doctor.profile_id
+    option.textContent = `Dr. ${doctor.full_name} - ${doctor.specialization}`;
+    doctorSelect.appendChild(option);
+    
+    if (preselectedDoctorId && doctor.user_id.toString() === preselectedDoctorId) {
+        option.selected = true;
+        updateSelectedDoctorDisplay(doctor);
+    }
+});
+        })
+        .catch(error => {
+            console.error('Error fetching doctors:', error);
+            if (doctorSelect) {
+                doctorSelect.innerHTML = '<option value="">Error loading doctors. Please try again.</option>';
+            }
+        });
+
+    // Handle doctor selection change
+    if (doctorSelect) {
+        doctorSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const selectedValue = selectedOption.value;
+            
+            if (selectedValue) {
+                // Find the selected doctor from the original API response
+                fetch('/users/doctors/api/')
+    .then(response => response.json())
+    .then(doctors => {
+        // Change to compare profile_id instead of user_id
+        const selectedDoctor = doctors.find(d => d.user_id.toString() === selectedValue);
+        if (selectedDoctor) {
+            updateSelectedDoctorDisplay(selectedDoctor);
+        }
+    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (selectedDoctorDisplay) {
+                            selectedDoctorDisplay.classList.add('hidden');
+                        }
+                    });
+            } else if (selectedDoctorDisplay) {
+                selectedDoctorDisplay.classList.add('hidden');
+            }
+        });
+    }
+
+    function updateSelectedDoctorDisplay(doctor) {
+        if (!selectedDoctorDisplay) return;
+        
+        selectedDoctorDisplay.classList.remove('hidden');
+        const nameElement = document.getElementById('selectedDoctorName');
+        const specialtyElement = document.getElementById('selectedDoctorSpecialty');
+        
+        if (nameElement && doctor.full_name) {
+            nameElement.textContent = `Dr. ${doctor.full_name}`;
+        }
+        if (specialtyElement && doctor.specialization) {
+            specialtyElement.textContent = doctor.specialization;
+        }
+    }
+
+    // Form submission handler
+    if (appointmentForm) {
+        appointmentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!doctorSelect || !dateInput || !timeSelect) {
+                alert('Required form elements are missing. Please refresh the page.');
+                return;
+            }
+
+            const formData = {
+                doctor: doctorSelect.value, // This will now be the user_id
+                date: dateInput.value,
+                time: timeSelect.value
+            };
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (!csrfToken) {
+                alert('CSRF token is missing. Please refresh the page.');
+                return;
+            }
+
+            fetch('/appointments/book/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken.value,
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                alert(data.message || 'Appointment booked successfully!');
+                window.location.href = '/appointments/my-appointments/';
+            })
+            .catch(error => {
+                console.error('Booking error:', error);
+                alert(error.message || 'Error booking appointment. Please try again.');
+            });
+        });
+    }
+});
+</script>
+
+
+{% endblock %}

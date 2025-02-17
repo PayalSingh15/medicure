@@ -1,0 +1,512 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6A11CB 0%, #2575FC 100%);
+        --secondary-gradient: linear-gradient(to right, #8E2DE2, #4A00E0);
+        --background-color: #0F2027;
+    }
+
+    * {
+        box-sizing: border-box;
+        scrollbar-width: thin;
+        scrollbar-color: #6A11CB #2575FC;
+    }
+
+    body {
+        background-color: var(--background-color);
+        color: #ffffff;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        line-height: 1.6;
+    }
+
+    .health-companion-container {
+        background: rgba(15, 32, 39, 0.8);
+        backdrop-filter: blur(20px);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 
+            0 50px 100px rgba(0,0,0,0.3),
+            0 15px 30px rgba(0,0,0,0.2);
+    }
+
+    .symptom-selector {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform-style: preserve-3d;
+    }
+
+    .symptom-selector:hover {
+        transform: 
+            translateZ(20px) 
+            rotateX(5deg) 
+            scale(1.05);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+    }
+
+    .ai-pulse {
+        animation: ai-pulse 2s infinite;
+    }
+
+    @keyframes ai-pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .glowing-border {
+        border: 2px solid transparent;
+        background-image: linear-gradient(var(--background-color), var(--background-color)), 
+                          linear-gradient(135deg, #6A11CB, #2575FC);
+        background-origin: border-box;
+        background-clip: content-box, border-box;
+    }
+
+    .holographic-card {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .holographic-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+            circle at center, 
+            rgba(255,255,255,0.2) 0%, 
+            transparent 70%
+        );
+        transform: rotate(-45deg);
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    .symptom-category {
+        transition: all 0.3s ease;
+    }
+
+    .search-results {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .selected-symptoms-container {
+        max-height: 150px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center p-6">
+    <div class="health-companion-container w-full max-w-full mx-auto grid md:grid-cols-3 gap-8 p-8">
+        
+        <!-- Sidebar: AI Assistant -->
+        <div class="col-span-1 bg-gradient-to-br from-purple-600 to-blue-500 rounded-3xl p-6 flex flex-col">
+            <div class="text-center mb-8">
+                <img 
+                    src="/static/images/Graident Ai Robot.jpg" 
+                    alt="AI Health Companion" 
+                    class="w-32 h-32 mx-auto rounded-full border-4 border-white shadow-2xl mb-4 ai-pulse"
+                >
+                <h2 class="text-3xl font-bold text-white">MediAI</h2>
+                <p class="text-white/80">Your Personal Health Navigator</p>
+            </div>
+
+            <div class="space-y-4 flex-grow">
+                <div class="bg-white/10 p-4 rounded-xl">
+                    <h3 class="font-semibold text-white mb-2">
+                        <i class="fas fa-shield-alt mr-2 text-green-400"></i>
+                        Privacy Guaranteed
+                    </h3>
+                    <p class="text-white/70 text-sm">
+                        Your data is 100% encrypted and never shared.
+                    </p>
+                </div>
+
+                <div class="bg-white/10 p-4 rounded-xl">
+                    <h3 class="font-semibold text-white mb-2">
+                        <i class="fas fa-brain mr-2 text-blue-400"></i>
+                        Advanced AI Analysis
+                    </h3>
+                    <p class="text-white/70 text-sm">
+                        Machine learning powered diagnostic insights.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 text-center">
+                <button class="bg-white text-purple-600 px-6 py-3 rounded-full font-bold hover:bg-purple-50 transition">
+                    Learn More
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content: Symptom Analysis -->
+        <div class="col-span-2 bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8">
+            <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 mb-6">
+                Symptom Intelligence
+            </h2>
+
+            <!-- Search Bar -->
+            <div class="mb-6">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="symptomSearch" 
+                        placeholder="Search symptoms..." 
+                        class="w-full px-4 py-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    >
+                    <div id="searchResults" class="search-results absolute w-full mt-2 bg-gray-800 rounded-lg hidden z-50">
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Selected Symptoms -->
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold text-white mb-2">Selected Symptoms</h3>
+                <div id="selectedSymptoms" class="selected-symptoms-container bg-gray-800 rounded-lg p-4 min-h-[100px] flex flex-wrap">
+                    <!-- Selected symptoms will appear here -->
+                </div>
+            </div>
+
+            <form id="predictionForm" action="{% url 'disease_prediction:predict_results' %}" method="POST">
+                {% csrf_token %}
+                <div id="symptomsContainer" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Symptoms will be dynamically populated -->
+                </div>
+                <div id="hiddenInputs">
+                    <!-- Hidden inputs will be populated here -->
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-full text-lg font-bold hover:from-blue-600 hover:to-purple-700 transition transform hover:scale-105 mt-6"
+                >
+                    Analyze My Health
+                    <i class="fas fa-diagnoses ml-3"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const symptoms = [
+    'itching', 'skin_rash', 'nodal_skin_eruptions', 'continuous_sneezing', 'shivering',
+    'chills', 'joint_pain', 'stomach_pain', 'acidity', 'ulcers_on_tongue', 'muscle_wasting',
+    'vomiting', 'burning_micturition', 'spotting_urination', 'fatigue', 'weight_gain', 'anxiety',
+    'cold_hands_and_feets', 'mood_swings', 'weight_loss', 'restlessness', 'lethargy', 
+    'patches_in_throat', 'irregular_sugar_level', 'cough', 'high_fever', 'sunken_eyes',
+    'breathlessness', 'sweating', 'dehydration', 'indigestion', 'headache', 'yellowish_skin',
+    'dark_urine', 'nausea', 'loss_of_appetite', 'pain_behind_the_eyes', 'back_pain',
+    'constipation', 'abdominal_pain', 'diarrhoea', 'mild_fever', 'yellow_urine', 
+    'yellowing_of_eyes', 'acute_liver_failure', 'fluid_overload', 'swelling_of_stomach', 
+    'swelled_lymph_nodes', 'malaise', 'blurred_and_distorted_vision', 'phlegm', 
+    'throat_irritation', 'redness_of_eyes', 'sinus_pressure', 'runny_nose', 'congestion', 
+    'chest_pain', 'weakness_in_limbs', 'fast_heart_rate', 'pain_during_bowel_movements', 
+    'pain_in_anal_region', 'bloody_stool', 'irritation_in_anus', 'neck_pain', 'dizziness', 
+    'cramps', 'bruising', 'obesity', 'swollen_legs', 'swollen_blood_vessels', 
+    'puffy_face_and_eyes', 'enlarged_thyroid', 'brittle_nails', 'swollen_extremeties', 
+    'excessive_hunger', 'extra_marital_contacts', 'drying_and_tingling_lips', 'slurred_speech', 
+    'knee_pain', 'hip_joint_pain', 'muscle_weakness', 'stiff_neck', 'swelling_joints', 
+    'movement_stiffness', 'spinning_movements', 'loss_of_balance', 'unsteadiness', 
+    'weakness_of_one_body_side', 'loss_of_smell', 'bladder_discomfort', 'foul_smell_of_urine', 
+    'continuous_feel_of_urine', 'passage_of_gases', 'internal_itching', 'toxic_look_(typhos)', 
+    'depression', 'irritability', 'muscle_pain', 'altered_sensorium', 'red_spots_over_body', 
+    'belly_pain', 'abnormal_menstruation', 'dischromic_patches', 'watering_from_eyes', 
+    'increased_appetite', 'polyuria', 'family_history', 'mucoid_sputum', 'rusty_sputum', 
+    'lack_of_concentration', 'visual_disturbances', 'receiving_blood_transfusion', 
+    'receiving_unsterile_injections', 'coma', 'stomach_bleeding', 'distention_of_abdomen', 
+    'history_of_alcohol_consumption', 'fluid_overload.1', 'blood_in_sputum', 
+    'prominent_veins_on_calf', 'palpitations', 'painful_walking', 'pus_filled_pimples', 
+    'blackheads', 'scurring', 'skin_peeling', 'silver_like_dusting', 'small_dents_in_nails', 
+    'inflammatory_nails', 'blister', 'red_sore_around_nose', 'yellow_crust_ooze'
+];
+
+const symptomMapping = {
+    "itching": "Itching",
+    "skin_rash": "Skin Rash",
+    "nodal_skin_eruptions": "Nodal Skin Eruptions",
+    "continuous_sneezing": "Continuous Sneezing",
+    "shivering": "Shivering",
+    "chills": "Chills",
+    "joint_pain": "Joint Pain",
+    "stomach_pain": "Stomach Pain",
+    "acidity": "Acidity",
+    "ulcers_on_tongue": "Ulcers On Tongue",
+    "muscle_wasting": "Muscle Wasting",
+    "vomiting": "Vomiting",
+    "burning_micturition": "Burning Micturition",
+    "spotting_urination": "Spotting Urination",
+    "fatigue": "Fatigue",
+    "weight_gain": "Weight Gain",
+    "anxiety": "Anxiety",
+    "cold_hands_and_feets": "Cold Hands And Feets",
+    "mood_swings": "Mood Swings",
+    "weight_loss": "Weight Loss",
+    "restlessness": "Restlessness",
+    "lethargy": "Lethargy",
+    "patches_in_throat": "Patches In Throat",
+    "irregular_sugar_level": "Irregular Sugar Level",
+    "cough": "Cough",
+    "high_fever": "High Fever",
+    "sunken_eyes": "Sunken Eyes",
+    "breathlessness": "Breathlessness",
+    "sweating": "Sweating",
+    "dehydration": "Dehydration",
+    "indigestion": "Indigestion",
+    "headache": "Headache",
+    "yellowish_skin": "Yellowish Skin",
+    "dark_urine": "Dark Urine",
+    "nausea": "Nausea",
+    "loss_of_appetite": "Loss Of Appetite",
+    "pain_behind_the_eyes": "Pain Behind The Eyes",
+    "back_pain": "Back Pain",
+    "constipation": "Constipation",
+    "abdominal_pain": "Abdominal Pain",
+    "diarrhoea": "Diarrhoea",
+    "mild_fever": "Mild Fever",
+    "yellow_urine": "Yellow Urine",
+    "yellowing_of_eyes": "Yellowing Of Eyes",
+    "acute_liver_failure": "Acute Liver Failure",
+    "fluid_overload": "Fluid Overload",
+    "swelling_of_stomach": "Swelling Of Stomach",
+    "swelled_lymph_nodes": "Swelled Lymph Nodes",
+    "malaise": "Malaise",
+    "blurred_and_distorted_vision": "Blurred And Distorted Vision",
+    "phlegm": "Phlegm",
+    "throat_irritation": "Throat Irritation",
+    "redness_of_eyes": "Redness Of Eyes",
+    "sinus_pressure": "Sinus Pressure",
+    "runny_nose": "Runny Nose",
+    "congestion": "Congestion",
+    "chest_pain": "Chest Pain",
+    "weakness_in_limbs": "Weakness In Limbs",
+    "fast_heart_rate": "Fast Heart Rate",
+    "pain_during_bowel_movements": "Pain During Bowel Movements",
+    "pain_in_anal_region": "Pain In Anal Region",
+    "bloody_stool": "Bloody Stool",
+    "irritation_in_anus": "Irritation In Anus",
+    "neck_pain": "Neck Pain",
+    "dizziness": "Dizziness",
+    "cramps": "Cramps",
+    "bruising": "Bruising",
+    "obesity": "Obesity",
+    "swollen_legs": "Swollen Legs",
+    "swollen_blood_vessels": "Swollen Blood Vessels",
+    "puffy_face_and_eyes": "Puffy Face And Eyes",
+    "enlarged_thyroid": "Enlarged Thyroid",
+    "brittle_nails": "Brittle Nails",
+    "swollen_extremeties": "Swollen Extremeties",
+    "excessive_hunger": "Excessive Hunger",
+    "extra_marital_contacts": "Extra Marital Contacts",
+    "drying_and_tingling_lips": "Drying And Tingling Lips",
+    "slurred_speech": "Slurred Speech",
+    "knee_pain": "Knee Pain",
+    "hip_joint_pain": "Hip Joint Pain",
+    "muscle_weakness": "Muscle Weakness",
+    "stiff_neck": "Stiff Neck",
+    "swelling_joints": "Swelling Joints",
+    "movement_stiffness": "Movement Stiffness",
+    "spinning_movements": "Spinning Movements",
+    "loss_of_balance": "Loss Of Balance",
+    "unsteadiness": "Unsteadiness",
+    "weakness_of_one_body_side": "Weakness Of One Body Side",
+    "loss_of_smell": "Loss Of Smell",
+    "bladder_discomfort": "Bladder Discomfort",
+    "foul_smell_of_urine": "Foul Smell Of Urine",
+    "continuous_feel_of_urine": "Continuous Feel Of Urine",
+    "passage_of_gases": "Passage Of Gases",
+    "internal_itching": "Internal Itching",
+    "toxic_look_(typhos)": "Toxic Look (typhos)",
+    "depression": "Depression",
+    "irritability": "Irritability",
+    "muscle_pain": "Muscle Pain",
+    "altered_sensorium": "Altered Sensorium",
+    "red_spots_over_body": "Red Spots Over Body",
+    "belly_pain": "Belly Pain",
+    "abnormal_menstruation": "Abnormal Menstruation",
+    "dischromic_patches": "Dischromic Patches",
+    "watering_from_eyes": "Watering From Eyes",
+    "increased_appetite": "Increased Appetite",
+    "polyuria": "Polyuria",
+    "family_history": "Family History",
+    "mucoid_sputum": "Mucoid Sputum",
+    "rusty_sputum": "Rusty Sputum",
+    "lack_of_concentration": "Lack Of Concentration",
+    "visual_disturbances": "Visual Disturbances",
+    "receiving_blood_transfusion": "Receiving Blood Transfusion",
+    "receiving_unsterile_injections": "Receiving Unsterile Injections",
+    "coma": "Coma",
+    "stomach_bleeding": "Stomach Bleeding",
+    "distention_of_abdomen": "Distention Of Abdomen",
+    "history_of_alcohol_consumption": "History Of Alcohol Consumption",
+    "fluid_overload.1": "Fluid Overload.1",
+    "blood_in_sputum": "Blood In Sputum",
+    "prominent_veins_on_calf": "Prominent Veins On Calf",
+    "palpitations": "Palpitations",
+    "painful_walking": "Painful Walking",
+    "pus_filled_pimples": "Pus Filled Pimples",
+    "blackheads": "Blackheads",
+    "scurring": "Scurring",
+    "skin_peeling": "Skin Peeling",
+    "silver_like_dusting": "Silver Like Dusting",
+    "small_dents_in_nails": "Small Dents In Nails",
+    "inflammatory_nails": "Inflammatory Nails",
+    "blister": "Blister",
+    "red_sore_around_nose": "Red Sore Around Nose",
+    "yellow_crust_ooze": "Yellow Crust Ooze"
+};
+
+// Track selected symptoms and initial symptoms
+let selectedSymptoms = new Set();
+let initialSymptoms = symptoms.slice(0, 20);
+
+const searchInput = document.getElementById('symptomSearch');
+const searchResults = document.getElementById('searchResults');
+const selectedSymptomsContainer = document.getElementById('selectedSymptoms');
+const form = document.getElementById('predictionForm');
+const hiddenInputs = document.getElementById('hiddenInputs');
+const symptomsContainer = document.getElementById('symptomsContainer');
+
+function updateSelectedSymptoms() {
+    selectedSymptomsContainer.innerHTML = '';
+    selectedSymptoms.forEach(symptom => {
+        const pill = document.createElement('span');
+        pill.className = 'inline-block bg-purple-600 text-white rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2';
+        pill.innerHTML = `
+            ${symptomMapping[symptom] || symptom}
+            <button type="button" class="ml-2 focus:outline-none" onclick="removeSymptom('${symptom}')">×</button>
+        `;
+        selectedSymptomsContainer.appendChild(pill);
+    });
+    
+    updateHiddenInputs();
+    updateSymptomSelectors();
+}
+
+function updateHiddenInputs() {
+    hiddenInputs.innerHTML = '';
+    selectedSymptoms.forEach(symptom => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'symptoms';
+        input.value = symptom;
+        hiddenInputs.appendChild(input);
+    });
+}
+
+function removeSymptom(symptom) {
+    selectedSymptoms.delete(symptom);
+    updateSelectedSymptoms();
+}
+
+function updateSymptomSelectors() {
+    symptomsContainer.innerHTML = '';
+    
+    // Create array of all symptoms to display
+    let displaySymptoms = [...selectedSymptoms]; // Selected symptoms first
+    
+    // Add remaining symptoms from initial list until we have 20
+    let remainingCount = 20 - displaySymptoms.length;
+    let additionalSymptoms = initialSymptoms.filter(s => !selectedSymptoms.has(s)).slice(0, remainingCount);
+    displaySymptoms = [...displaySymptoms, ...additionalSymptoms];
+
+    // Create checkbox for each symptom
+    displaySymptoms.forEach(symptom => {
+        const div = document.createElement('div');
+        div.className = `symptom-selector relative bg-gray-800 rounded-lg p-4 transition-transform duration-300 ${selectedSymptoms.has(symptom) ? 'bg-blue-600' : ''}`;
+        div.innerHTML = `
+            <input 
+                type="checkbox" 
+                id="${symptom}" 
+                name="symptoms" 
+                value="${symptom}" 
+                class="hidden"
+                ${selectedSymptoms.has(symptom) ? 'checked' : ''}
+            >
+            <label 
+                for="${symptom}" 
+                class="flex items-center justify-between text-white font-medium cursor-pointer"
+            >
+                ${symptomMapping[symptom] || symptom}
+                <span class="checkmark border-2 border-white rounded-full w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-check text-white ${selectedSymptoms.has(symptom) ? '' : 'hidden'}"></i>
+                </span>
+            </label>
+        `;
+        
+        div.addEventListener('click', () => {
+            const checkbox = div.querySelector('input');
+            const checkmark = div.querySelector('.checkmark i');
+            
+            if (!selectedSymptoms.has(symptom)) {
+                selectedSymptoms.add(symptom);
+                div.classList.add('bg-blue-600');
+                checkmark.classList.remove('hidden');
+            } else {
+                selectedSymptoms.delete(symptom);
+                div.classList.remove('bg-blue-600');
+                checkmark.classList.add('hidden');
+            }
+            
+            updateSelectedSymptoms();
+        });
+        
+        symptomsContainer.appendChild(div);
+    });
+}
+
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    if (searchTerm.length < 2) {
+        searchResults.classList.add('hidden');
+        return;
+    }
+
+    const matches = symptoms.filter(symptom => 
+        (symptomMapping[symptom].toLowerCase().includes(searchTerm) || 
+         symptom.toLowerCase().includes(searchTerm))
+    );
+
+    if (matches.length > 0) {
+        searchResults.innerHTML = matches
+            .slice(0, 5)
+            .map(symptom => `
+                <div class="p-2 hover:bg-gray-700 cursor-pointer" onclick="addSymptom('${symptom}')">
+                    ${symptomMapping[symptom] || symptom}
+                </div>
+            `)
+            .join('');
+        searchResults.classList.remove('hidden');
+    } else {
+        searchResults.classList.add('hidden');
+    }
+});
+
+function addSymptom(symptom) {
+    selectedSymptoms.add(symptom);
+    updateSelectedSymptoms();
+    searchInput.value = '';
+    searchResults.classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+    if (!searchResults.contains(e.target) && e.target !== searchInput) {
+        searchResults.classList.add('hidden');
+    }
+});
+
+// Initialize symptom selectors
+updateSymptomSelectors();
+</script>
+{% endblock %}

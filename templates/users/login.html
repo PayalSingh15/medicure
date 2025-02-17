@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{%load static%}
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #F4F7FA;
+    }
+
+    .login-container {
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .login-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-width: 1200px;
+        width: 100%;
+        background: white;
+        border-radius: 1.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .illustration-side {
+        background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 3rem;
+        color: white;
+        text-align: center;
+        position: relative;
+    }
+
+    .login-form {
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .input-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .input-wrapper input {
+        width: 100%;
+        padding: 12px 12px 12px 40px;
+        border: 2px solid #E5E7EB;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .input-wrapper input:focus {
+        border-color: #3B82F6;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-wrapper i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9CA3AF;
+        transition: color 0.3s ease;
+    }
+
+    .input-wrapper input:focus + i {
+        color: #3B82F6;
+    }
+
+    .password-strength {
+        height: 4px;
+        background: #E5E7EB;
+        margin-top: 5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .password-strength-meter {
+        position: absolute;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(to right, #FF4136, #FF851B, #2ECC40);
+        transition: width 0.5s ease;
+    }
+
+    .login-button {
+        background: linear-gradient(to right, #3B82F6, #10B981);
+        color: white;
+        padding: 12px;
+        border-radius: 0.75rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .login-wrapper {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-wrapper">
+        <!-- Illustration Side -->
+        <div class="illustration-side">
+            <img src="{% static 'images/doctor_illustration.jpg' %}" alt="Modern Illustration" class="mb-6 rounded-lg shadow-lg">
+            
+            <h2 class="text-3xl font-bold mb-4">MediCure Healthcare</h2>
+            <p class="text-white/80 max-w-sm">
+                Secure, personalized healthcare management. 
+                Access your medical records, consultations, and more.
+            </p>
+        </div>
+
+        <!-- Login Form Side -->
+        <div class="login-form">
+            <h1 class="text-2xl font-bold mb-6 text-center">Login to Your Account</h1>
+            
+            <form id="loginForm" method="POST" action="{% url 'login' %}" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Email Input -->
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="emailInput"
+                        placeholder="Enter your email" 
+                        required
+                        pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"                    >
+                    <small id="emailError" class="text-red-500 hidden">Please enter a valid email</small>
+                </div>
+
+                <!-- Password Input -->
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="passwordInput"
+                        placeholder="Enter your password" 
+                        required
+                        minlength="8"
+                    >
+                    <div class="password-strength">
+                        <div id="passwordStrengthMeter" class="password-strength-meter"></div>
+                    </div>
+                    <small id="passwordError" class="text-red-500 hidden">Password must be at least 8 characters</small>
+                </div>
+
+                <!-- Remember Me & Forgot Password -->
+                <div class="flex justify-between items-center">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="form-checkbox h-4 w-4 text-blue-600">
+                        <span class="ml-2 text-gray-700">Remember me</span>
+                    </label>
+                    <a href="{% url 'forgot_password' %}" class="text-blue-600 hover:underline">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <!-- Login Button --> 
+                <button type="submit" class="login-button">
+                    Login Securely
+                </button>
+
+                <!-- Social Login Options -->
+                <div class="mt-6 text-center">
+                    <p class="text-gray-500 mb-4">Or login with</p>
+                    <div class="flex justify-center space-x-4">
+                        <button type="button" class="bg-red-500 text-white p-3 rounded-full">
+                            <i class="fab fa-google"></i>
+                        </button>
+                        <button type="button" class="bg-blue-600 text-white p-3 rounded-full">
+                            <i class="fab fa-facebook"></i>
+                        </button>
+                        <button type="button" class="bg-black text-white p-3 rounded-full">
+                            <i class="fab fa-apple"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Sign Up Link -->
+            <p class="text-center text-gray-600 mt-6">
+                Don't have an account? 
+                <a href="{% url 'signup' %}" class="text-blue-600 font-bold hover:underline">
+                    Sign Up
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordStrengthMeter = document.getElementById('passwordStrengthMeter');
+    
+    passwordInput.addEventListener('input', function() {
+        const value = passwordInput.value;
+        let strength = 0;
+
+        if (value.length >= 8) strength += 1;
+        if (/[A-Z]/.test(value)) strength += 1;
+        if (/[0-9]/.test(value)) strength += 1;
+        if (/[^A-Za-z0-9]/.test(value)) strength += 1;
+
+        const strengthPercentage = (strength / 4) * 100;
+        passwordStrengthMeter.style.width = strengthPercentage + '%';
+
+        if (strengthPercentage < 50) {
+            passwordStrengthMeter.style.background = '#FF4136'; // Weak
+        } else if (strengthPercentage < 75) {
+            passwordStrengthMeter.style.background = '#FF851B'; // Medium
+        } else {
+            passwordStrengthMeter.style.background = '#2ECC40'; // Strong
+        }
+    });
+
+    const emailInput = document.getElementById('emailInput');
+    const emailError = document.getElementById('emailError');
+
+    emailInput.addEventListener('input', function() {
+        const isValidEmail = emailInput.checkValidity();
+        emailError.classList.toggle('hidden', isValidEmail);
+    });
+
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', function(event) {
+        if (!emailInput.checkValidity() || passwordInput.value.length < 8) {
+            event.preventDefault();
+            if (!emailInput.checkValidity()) {
+                emailError.classList.remove('hidden');
+            }
+            if (passwordInput.value.length < 8) {
+                document.getElementById('passwordError').classList.remove('hidden');
+            }
+        }
+    });
+</script>
+{% block extra_js %}
+<script>
+
+
+
+function handleLogin(data) {
+    // Store tokens in localStorage or sessionStorage
+    localStorage.setItem('access_token', data.access);
+    localStorage.setItem('refresh_token', data.refresh);
+    
+    // Redirect to dashboard or desired page
+    window.location.href = '/users/dashboard/';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+
+    loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(loginForm);
+        
+        try {
+            const response = await fetch('{% url "login" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Successful login
+                handleLogin(data);
+            } else {
+                // Login failed
+                const errorMessage = data.error || 'Login failed. Please try again.';
+                alert(errorMessage);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('An unexpected error occurred. Please try again.');
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

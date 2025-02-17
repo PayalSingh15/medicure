@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+        <!-- Success Animation -->
+        <div class="success-checkmark mb-6">
+            <div class="check-icon">
+                <svg class="w-20 h-20 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path class="checkmark__check" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                        <animate attributeName="stroke-dasharray" from="0,100" to="100,100" dur="0.8s" fill="freeze"/>
+                    </path>
+                    <circle class="checkmark__circle" cx="12" cy="12" r="10" stroke-width="2" fill="none">
+                        <animate attributeName="stroke-dasharray" from="0,100" to="100,100" dur="0.6s" fill="freeze"/>
+                    </circle>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <h2 class="text-3xl font-bold text-gray-900 mb-4">
+            Email Verified Successfully!
+        </h2>
+        <p class="text-gray-600 text-lg mb-8">
+            Your email has been confirmed and your account is now fully activated.
+        </p>
+
+        <!-- Next Steps Card -->
+        <div class="bg-green-50 rounded-lg p-6 mb-8">
+            <h3 class="text-green-800 font-semibold mb-3">What's Next?</h3>
+            <ul class="text-green-700 text-left space-y-2">
+                <li class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Log in to your account
+                </li>
+                <li class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Complete your profile
+                </li>
+                <li class="flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    Start exploring our features
+                </li>
+            </ul>
+        </div>
+
+        <!-- Login Button -->
+        <a href="{% url 'login' %}" 
+           class="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-green-600 text-white font-semibold transition duration-200 ease-in-out transform hover:bg-green-700 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+            </svg>
+            Continue to Login
+        </a>
+
+        <!-- Support Link -->
+        <p class="mt-6 text-sm text-gray-500">
+            Need help? 
+            <a href="#" class="text-green-600 hover:text-green-800 font-medium">Contact our support team</a>
+        </p>
+    </div>
+</div>
+
+<style>
+    @keyframes slideIn {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .success-checkmark {
+        animation: slideIn 0.5s ease-out forwards;
+    }
+
+    .checkmark__circle {
+        stroke: #49DE80;
+        stroke-dasharray: 0,100;
+    }
+
+    .checkmark__check {
+        stroke: #22C55E;
+        stroke-dasharray: 0,100;
+    }
+</style>
+{% endblock %}

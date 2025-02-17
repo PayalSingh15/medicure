@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                Your Personalized Diet Plan
+            </h1>
+            <p class="mt-3 text-xl text-gray-600">
+                Customized nutrition to help you reach your goals
+            </p>
+        </header>
+
+        <!-- Profile Summary Card -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-12">
+            <div class="p-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Daily Calories</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-900">{{ diet_plan.daily_calories }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">BMI Category</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-900 capitalize">{{ diet_plan.bmi_category }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Goal</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-900 capitalize">{{ diet_plan.goal }}</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wide">Plan Date</p>
+                        <p class="mt-1 text-3xl font-semibold text-gray-900">{{ diet_plan.date_created|date:"M j" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meal Plans Section -->
+        {% for meal_type, meals in meals.items %}
+        <section class="mb-12">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-3xl font-bold text-gray-900 flex items-center">
+                    {% if meal_type == 'breakfast' %}
+                        <svg class="w-8 h-8 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 8h-2.81a5.985 5.985 0 00-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5c-.49 0-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20V8zm-6 8h-4v-2h4v2zm0-4h-4v-2h4v2z"></path></svg>
+                    {% elif meal_type == 'lunch' %}
+                        <svg class="w-8 h-8 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18v18H3zM12 8v8m-4-4h8"></path></svg>
+                    {% elif meal_type == 'dinner' %}
+                        <svg class="w-8 h-8 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.704 2.704 0 00-3 0 2.704 2.704 0 01-3 0 2.701 2.701 0 00-1.5-.454M9 6v2m3-2v2m3-2v2M9 3h.01M12 3h.01M15 3h.01M21 21v-7a2 2 0 00-2-2H5a2 2 0 00-2 2v7h18zm-3-9v-2a2 2 0 00-2-2H8a2 2 0 00-2 2v2h12z"></path></svg>
+                    {% else %}
+                        <svg class="w-8 h-8 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    {% endif %}
+                    <span class="capitalize">{{ meal_type }}</span>
+                </h2>
+                <span class="bg-teal-100 text-teal-800 text-sm font-medium px-3 py-1 rounded-full">
+                    {{ meals|length }} options
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for meal in meals %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                    {% if meal.image %}
+                    <div class="relative h-48">
+                        <img src="{{ meal.image }}" alt="{{ meal.title }}" class="w-full h-full object-cover">
+                        <div class="absolute top-0 right-0 bg-teal-500 text-white px-3 py-1 rounded-bl-lg text-sm font-semibold">
+                            {{ meal.calories }} cal
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="p-6">
+                        <h3 class="font-semibold text-xl text-gray-900 mb-4">{{ meal.title }}</h3>
+                        
+                        {% if meal.nutrition %}
+                        <div class="grid grid-cols-3 gap-4 mb-6">
+                            <div class="text-center p-2 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-500">Protein</p>
+                                <p class="font-bold text-gray-700">{{ meal.nutrition.protein }}</p>
+                            </div>
+                            <div class="text-center p-2 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-500">Carbs</p>
+                                <p class="font-bold text-gray-700">{{ meal.nutrition.carbohydrates|default:"N/A" }}</p>
+                            </div>
+                            <div class="text-center p-2 bg-gray-50 rounded-lg">
+                                <p class="text-sm text-gray-500">Fat</p>
+                                <p class="font-bold text-gray-700">{{ meal.nutrition.fat }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if meal.readyInMinutes %}
+                        <div class="flex items-center text-gray-600 mb-4">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm">Ready in {{ meal.readyInMinutes }} minutes</span>
+                        </div>
+                        {% endif %}
+
+                        {% if meal.sourceUrl %}
+                        <a href="{{ meal.sourceUrl }}" 
+                           target="_blank" 
+                           class="block w-full text-center bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300">
+                            View Recipe
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+
+        <!-- Tips Section -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-12">
+            <div class="p-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Tips for Success</h2>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-teal-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700">Try to stay within 100 calories of your daily target for optimal results.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-teal-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700">Drink water throughout the day, especially before meals.</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 text-teal-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span class="text-gray-700">Feel free to mix and match meals from the options provided.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Print Button -->
+        <div class="text-center">
+            <button onclick="window.print()" class="bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg inline-flex items-center transition duration-300">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Print Diet Plan
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .container {
+            max-width: none;
+            padding: 0;
+        }
+        button {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+

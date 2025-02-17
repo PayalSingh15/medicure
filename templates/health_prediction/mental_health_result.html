@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+
+{% block title %}Mental Health Assessment Result - MediCure{% endblock %}
+
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+    .result-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #EEF2FF 0%, #ffffff 100%);
+        padding: 2rem 1rem;
+    }
+
+    .result-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 2.5rem;
+        text-align: center;
+    }
+
+    .result-icon {
+        width: 80px;
+        height: 80px;
+        background: #EEF2FF;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: #4F46E5;
+    }
+
+    .result-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1F2937;
+        margin-bottom: 1rem;
+    }
+
+    .result-box {
+        background: #F3F4F6;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .result-box::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(to right, #4F46E5, #818CF8);
+    }
+
+    .condition-text {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #4F46E5;
+        margin: 1rem 0;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        background: rgba(79, 70, 229, 0.1);
+        display: inline-block;
+    }
+
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        margin: 0.5rem;
+    }
+
+    .primary-button {
+        background: #4F46E5;
+        color: white;
+    }
+
+    .primary-button:hover {
+        background: #4338CA;
+        transform: translateY(-1px);
+    }
+    .secondary-button {
+        background:  #4F46E5;
+        color: white;
+    }
+
+    .secondary-button:hover {
+        background: #4338CA;
+        transform: translateY(-1px);
+    }
+
+    .tertiary-button {
+        background: #E5E7EB;
+        color: #4B5563;
+    }
+
+    .tertiary-button:hover {
+        background: #D1D5DB;
+    }
+
+    .button-container {
+        margin-top: 2rem;
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .animate-slide-up {
+        animation: slideUp 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from { 
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .resources-section {
+        margin-top: 2rem;
+        padding: 1rem;
+        text-align: left;
+        border-top: 1px solid #E5E7EB;
+    }
+
+    .resources-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin-bottom: 1rem;
+    }
+
+    .resources-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .resources-list li {
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #4B5563;
+    }
+
+    .resources-list i {
+        color: #4F46E5;
+    }
+</style>
+
+<div class="result-container">
+    <div class="result-card animate-fade-in">
+        <div class="result-icon animate-slide-up">
+            <i class="fas fa-brain"></i>
+        </div>
+        
+        <h2 class="result-title animate-slide-up">Assessment Result</h2>
+        
+        <div class="result-box animate-slide-up">
+            <p class="text-lg text-gray-600 mb-2">Your predicted mental health condition:</p>
+            <div class="condition-text">
+                <i class="fas fa-stethoscope mr-2"></i>
+                {{ condition }}
+            </div>
+        </div>
+        
+        <div class="resources-section animate-slide-up">
+            <h3 class="resources-title">
+                <i class="fas fa-info-circle mr-2"></i>
+                Helpful Resources
+            </h3>
+            <ul class="resources-list">
+                <li>
+                    <i class="fas fa-phone"></i>
+                    24/7 Crisis Helpline: 14416
+                </li>
+                <li>
+                    <i class="fas fa-comment-medical"></i>
+                    Online Counseling Services
+                </li>
+                <li>
+                    <i class="fas fa-book-medical"></i>
+                    Mental Health Education Resources
+                </li>
+                <li>
+                    <i class="fas fa-users"></i>
+                    Support Groups in Your Area
+                </li>
+            </ul>
+        </div>
+        
+        <div class="button-container animate-slide-up">
+            <a href="{% url 'mental_health' %}" class="action-button primary-button">
+                <i class="fas fa-redo"></i>
+                Take Another Assessment
+            </a>
+            <a href="{% url 'doctor_list' %}" 
+            class="action-button secondary-button">
+                       <i class="fas fa-diagnoses"></i> 
+                       Find a Specialist
+                    </a>
+            <a href="{% url 'health_home' %}" class="action-button tertiary-button">
+                <i class="fas fa-home"></i>
+                Back to Health Predictions
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scroll behavior
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Add hover effect to buttons
+    document.querySelectorAll('.action-button').forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

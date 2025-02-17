@@ -1,0 +1,130 @@
+{# index.html #}
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+    .service-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .service-card:hover {
+        transform: translateY(-5px);
+    }
+    .gradient-text {
+    background: linear-gradient(120deg, #4F46E5, #7C3AED);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+    .card-gradient {
+        background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,250,251,0.9) 100%);
+    }
+    .hover-lift {
+        transition: all 0.3s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- Hero Section -->
+            <div class="text-center mb-16 animate-fade-in">
+                <h1 class="text-5xl font-bold mb-6 gradient-text">
+                    Predictive Healthcare Intelligence
+                </h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                    Experience the future of healthcare with our AI-powered prediction tools
+                </p>
+            </div>
+
+            <!-- Service Cards Grid -->
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <!-- Mental Health Card -->
+                <div class="service-card bg-white rounded-2xl shadow-lg overflow-hidden hover-lift">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                            <span class="text-3xl">🧠</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 text-center">Mental Health Analysis</h3>
+                        <p class="text-gray-600 text-center mb-6">Advanced emotional well-being assessment using AI</p>
+                        <a href="{% url 'mental_health' %}" 
+                           class="block w-full text-center bg-gradient-to-r from-indigo-600 to-indigo-700 text-white py-3 px-6 rounded-xl hover:from-indigo-700 hover:to-indigo-800 transition-all duration-300">
+                            Begin Assessment
+                        </a>
+                    </div>
+                </div>
+
+                <!-- PCOS Card -->
+                <div class="service-card bg-white rounded-2xl shadow-lg overflow-hidden hover-lift">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                            <span class="text-3xl">🩺</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 text-center">PCOS Screening</h3>
+                        <p class="text-gray-600 text-center mb-6">Smart PCOS risk assessment and analysis</p>
+                        <a href="{% url 'pcos' %}" 
+                           class="block w-full text-center bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-6 rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300">
+                            Start Screening
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Obesity Card -->
+                <div class="service-card bg-white rounded-2xl shadow-lg overflow-hidden hover-lift">
+                    <div class="p-8">
+                        <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-6 mx-auto">
+                            <span class="text-3xl">⚖️</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 text-center">Body Composition Analysis</h3>
+                        <p class="text-gray-600 text-center mb-6">Comprehensive obesity risk evaluation</p>
+                        <a href="{% url 'obesity' %}" 
+                           class="block w-full text-center bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-6 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-300">
+                            Analyze Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="bg-white rounded-2xl shadow-lg p-12 mb-12">
+                <h3 class="text-3xl font-bold text-center mb-12 gradient-text">Why Choose Our Platform?</h3>
+                <div class="grid md:grid-cols-3 gap-12">
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl flex items-center justify-center mb-6">
+                            <span class="text-4xl">🎯</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-4">Precision Analytics</h4>
+                        <p class="text-gray-600">State-of-the-art ML algorithms for accurate health predictions</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl flex items-center justify-center mb-6">
+                            <span class="text-4xl">🔒</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-4">Data Security</h4>
+                        <p class="text-gray-600">Enterprise-grade encryption and privacy protection</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                            <span class="text-4xl">⚡</span>
+                        </div>
+                        <h4 class="text-xl font-semibold mb-4">Real-time Results</h4>
+                        <p class="text-gray-600">Immediate insights and personalized recommendations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="text-center text-gray-500 text-sm max-w-3xl mx-auto">
+                <p>These predictions are for informational purposes only and should not substitute professional medical advice. 
+                Always consult healthcare professionals for medical decisions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

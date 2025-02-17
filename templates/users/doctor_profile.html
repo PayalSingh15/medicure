@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    body {
+        background-color: #F4F7FA;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    }
+
+    .profile-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .gradient-bg {
+        background: linear-gradient(135deg, #3B82F6 0%, #10B981 100%);
+    }
+
+    .status-badge {
+        transition: all 0.3s ease;
+    }
+
+    .status-badge:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-12 px-4">
+    <div class="max-w-5xl mx-auto">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 profile-card">
+            <div class="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-8">
+                <!-- Profile Picture -->
+                <div class="relative">
+                    <img 
+                        src="{{ user.profile_picture.url|default:'/static/images/doctor.png' }}" 
+                        alt="{{ user.get_full_name }}" 
+                        class="w-32 h-32 rounded-full border-4 border-blue-500 object-cover"
+                    >
+                    <div class="absolute bottom-0 right-0 bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-check"></i>
+                    </div>
+                </div>
+
+                <!-- Profile Summary -->
+                <div class="text-center md:text-left">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                        {{ user.get_full_name|default:user.username }}
+                    </h1>
+                    <p class="text-xl text-gray-600 mb-4">
+                        {{ profile.specialization }} Specialist
+                    </p>
+                    
+                    <!-- Status Badge -->
+                    <div class="inline-block status-badge">
+                        {% if profile.is_approved %}
+                            <span class="bg-green-100 text-green-800 px-4 py-1 rounded-full font-semibold">
+                                <i class="fas fa-check-circle mr-2"></i>Verified Professional
+                            </span>
+                        {% else %}
+                            <span class="bg-yellow-100 text-yellow-800 px-4 py-1 rounded-full font-semibold">
+                                <i class="fas fa-clock mr-2"></i>Pending Verification
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details Grid -->
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Personal & Professional Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 profile-card">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
+                    <i class="fas fa-user-md mr-3 text-blue-500"></i>Professional Details
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                            <i class="fas fa-graduation-cap mr-2 text-blue-400"></i>Specialization
+                        </h3>
+                        <p class="text-gray-800">{{ profile.specialization }}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                            <i class="fas fa-id-card mr-2 text-blue-400"></i>License Number
+                        </h3>
+                        <p class="text-gray-800">{{ profile.license_number }}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                            <i class="fas fa-briefcase mr-2 text-blue-400"></i>Experience
+                        </h3>
+                        <p class="text-gray-800">{{ profile.experience }} Years of Practice</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Additional Information -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 profile-card">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-4">
+                    <i class="fas fa-address-card mr-3 text-blue-500"></i>Contact Information
+                </h2>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                            <i class="fas fa-envelope mr-2 text-blue-400"></i>Email Address
+                        </h3>
+                        <p class="text-gray-800">{{ user.email }}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                            <i class="fas fa-phone mr-2 text-blue-400"></i>Contact Number
+                        </h3>
+                        <p class="text-gray-800">{{ profile.phone_number|default:'Not Provided' }}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2 text-blue-400"></i>Clinic Address
+                        </h3>
+                        <p class="text-gray-800">{{ profile.clinic_address|default:'Not Provided' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex space-x-4 justify-center">
+            <a href="" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition flex items-center">
+                <i class="fas fa-edit mr-2"></i>Edit Profile
+            </a>
+            <a href="" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition flex items-center">
+                <i class="fas fa-lock mr-2"></i>Change Password
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Optional: Add any additional interactive elements or animations
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileCards = document.querySelectorAll('.profile-card');
+        profileCards.forEach(card => {
+            card.addEventListener(' mouseenter', () => {
+                card.classList.add('shadow-xl');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('shadow-xl');
+            });
+        });
+    });
+</script>
+{% endblock %}
