@@ -14,6 +14,8 @@ from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
+import dj_database_url
+
 load_dotenv()
 
 
@@ -25,12 +27,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--0_emgcrguu*ko=f_uki8d!z+gcn=zo(skp7&q_ejj7gol9s0e'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure--0_emgcrguu*ko=f_uki8d!z+gcn=zo(skp7&q_ejj7gol9s0e')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = []
+# Updated hosts for deployment
+ALLOWED_HOSTS = ['medicure-pig9.onrender.com', 'localhost', '127.0.0.1']
+  # For demo purposes only - restrict this in production
 
 
 
@@ -45,11 +49,14 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Replace with your emai
 
 
 # Application definition
-ALLOWED_HOSTS = ['185f-103-157-206-163.ngrok-free.app', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS already defined above
 CSRF_TRUSTED_ORIGINS = [
-    'https://185f-103-157-206-163.ngrok-free.app', 
-    'http://185f-103-157-206-163.ngrok-free.app',  # Both http and https if needed
+    'https://medicure-pig9.onrender.com',
+    'http://medicure-pig9.onrender.com',
+    'https://185f-103-157-206-163.ngrok-free.app',
+    'http://185f-103-157-206-163.ngrok-free.app',
 ]
+
 
 
 
@@ -60,24 +67,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-     'users.apps.UsersConfig',
+    'whitenoise.runserver_nostatic',  # Added for static files on production
+    'users.apps.UsersConfig',
 
-     # Custom Apps
-    
+    # Custom Apps
     'doctors',
     'appointments',
     'subscriptions',
     'disease_prediction',
     'diet_exercise',
-     'health_prediction',
+    'health_prediction',
 
     # Third-party apps
     'rest_framework',
-     'rest_framework_simplejwt'
+    'rest_framework_simplejwt'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Added for static files on production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,7 +96,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'medicure.urls'
 
- #Add JWT settings
+#Add JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -99,7 +107,7 @@ SIMPLE_JWT = {
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-         'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,10 +127,10 @@ WSGI_APPLICATION = 'medicure.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3'),
+        conn_max_age=600
+    )
 }
 
 
@@ -178,9 +186,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # Add this line
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        
         'rest_framework.permissions.AllowAny',
-        
     ),
 }
 
@@ -203,10 +209,11 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-# Add static files configuration
-STATIC_URL = 'static/'
+# Static files configuration
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -216,4 +223,3 @@ LOGIN_URL = "/users/login/"
 LOGIN_REDIRECT_URL = "/users/dashboard/"
 SPOONACULAR_API_KEY = os.getenv("SPOONACULAR_API_KEY")
 EXERCISEDB_API_KEY = os.getenv("EXERCISEDB_API_KEY")
-
