@@ -1,44 +1,53 @@
+import os
 import pandas as pd
 import numpy as np
 import pickle
+
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
-# Load the Obesity dataset
-file_path = "D:/Medicure/health_prediction/datasets/obesity_data.csv"
+# Set up Django environment if running this as a standalone script
+import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'medicure.settings')
+django.setup()
+
+from django.conf import settings
+
+# === Load Obesity dataset ===
+file_path = os.path.join(settings.BASE_DIR, 'health_prediction', 'datasets', 'obesity_data.csv')
 df = pd.read_csv(file_path, encoding='utf-8-sig')
 
-# Convert categorical columns to numeric
+# Convert Gender column to numeric
 df["Gender"] = df["Gender"].map({"Male": 1, "Female": 0})
 
-# Encode the target variable (ObesityCategory)
+# Encode target variable (ObesityCategory)
 label_encoder = LabelEncoder()
 df["ObesityCategory"] = label_encoder.fit_transform(df["ObesityCategory"])
 
-# Define features (X) and target (y)
-X = df.drop(columns=["ObesityCategory"])  # Features
-y = df["ObesityCategory"]  # Target
+# Separate features and target
+X = df.drop(columns=["ObesityCategory"])
+y = df["ObesityCategory"]
 
-# Split into training & testing sets
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train the model
+# Train model
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Save the trained model and label encoder
+# Prepare to save
 model_data = {
     "model": model,
     "label_encoder": label_encoder
 }
 
-# Ensure the models directory exists
-import os
-os.makedirs("D:/Medicure/health_prediction/models", exist_ok=True)
+# Ensure model directory exists
+model_dir = os.path.join(settings.BASE_DIR, 'health_prediction', 'models')
+os.makedirs(model_dir, exist_ok=True)
 
-# Save the trained model
-model_path = "D:/Medicure/health_prediction/models/obesity_model.pkl"
+# Save model
+model_path = os.path.join(model_dir, 'obesity_model.pkl')
 with open(model_path, "wb") as f:
     pickle.dump(model_data, f)
 

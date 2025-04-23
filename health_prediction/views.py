@@ -8,7 +8,7 @@ from django.contrib import messages
 
 
 # Load the trained model
-model_path = "D:/Medicure/health_prediction/models/mental_health_model.pkl"
+model_path = os.path.join(settings.BASE_DIR, "health_prediction", "models", "mental_health_model.pkl")
 with open(model_path, "rb") as file:
     model_data = pickle.load(file)
 
@@ -84,7 +84,7 @@ class MentalHealthView(View):
     
 
 # Load the trained PCOS model
-pcos_model_path = "D:/Medicure/health_prediction/models/pcos_model.pkl"
+pcos_model_path = os.path.join(settings.BASE_DIR, "health_prediction", "models", "pcos_model.pkl")
 with open(pcos_model_path, "rb") as file:
     pcos_model = pickle.load(file)
 
@@ -161,7 +161,7 @@ class PCOSView(View):
 
 
 # Load the trained Obesity model
-obesity_model_path = "D:/Medicure/health_prediction/models/obesity_model.pkl"
+obesity_model_path = os.path.join(settings.BASE_DIR, "health_prediction", "models", "obesity_model.pkl")
 with open(obesity_model_path, "rb") as file:
     obesity_model_data = pickle.load(file)
 
