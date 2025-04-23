@@ -1,18 +1,38 @@
-# Ignore system files
-__pycache__/
-*.pyc
-*.pyo
-
-# Ignore virtual environment
-venv/
-
-# Ignore database
-db.sqlite3
-
-# Ignore environment variables
+# Environment variables
 .env
 
-# Ignore migrations cache
-*/migrations/__pycache__/
-*/migrations/*.pyc
-*/migrations/*.pyo
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+local_settings.py
+db.sqlite3-journal
+media
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Static files collected
+staticfiles/

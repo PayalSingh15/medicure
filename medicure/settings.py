@@ -40,8 +40,8 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 10  # Helps with debugging timeouts
-EMAIL_HOST_USER = 'shivamyadav69998@gmail.com'  # Replace with your email
-EMAIL_HOST_PASSWORD = 'tzrw fpdf bmmu oenb'  # Replace with your email password
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # Replace with your email
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # Replace with your email password
 
 
 # Application definition
@@ -184,8 +184,8 @@ REST_FRAMEWORK = {
     ),
 }
 
-RAZORPAY_KEY_ID = "rzp_test_ksoFxEj7iYtEuk"
-RAZORPAY_KEY_SECRET = "BRkvo2HD2G5oN4b5LBOetu3y"
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
 
 # Internationalization

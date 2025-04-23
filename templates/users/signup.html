@@ -32,6 +32,23 @@
         opacity: 0;
         transform: translateY(20px);
     }
+    .validation-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+    .validation-icon {
+        width: 16px;
+        height: 16px;
+    }
+    .valid-icon {
+        color: #10B981;
+    }
+    .invalid-icon {
+        color: #EF4444;
+    }
 </style>
 {% endblock %}
 
@@ -71,7 +88,7 @@
                 </div>
 
                 <!-- User Type Selection -->
-                <form method="POST" class="space-y-6">
+                <form method="POST" class="space-y-6" id="signupForm">
                     {% csrf_token %}
                     <div class="mb-6">
                         <h3 class="text-xl font-semibold mb-4 text-center">Select Account Type</h3>
@@ -133,9 +150,37 @@
                         </div>
                     </div>
 
+                    <!-- Password Validation Messages -->
+                    <div class="mt-4 space-y-2" id="password-validations">
+                        <div class="validation-item" data-requirement="length">
+                            <i class="fas fa-times validation-icon invalid-icon"></i>
+                            <span>At least 8 characters long</span>
+                        </div>
+                        <div class="validation-item" data-requirement="uppercase">
+                            <i class="fas fa-times validation-icon invalid-icon"></i>
+                            <span>Contains at least one uppercase letter</span>
+                        </div>
+                        <div class="validation-item" data-requirement="lowercase">
+                            <i class="fas fa-times validation-icon invalid-icon"></i>
+                            <span>Contains at least one lowercase letter</span>
+                        </div>
+                        <div class="validation-item" data-requirement="number">
+                            <i class="fas fa-times validation-icon invalid-icon"></i>
+                            <span>Contains at least one number</span>
+                        </div>
+                        <div class="validation-item" data-requirement="special">
+                            <i class="fas fa-times validation-icon invalid-icon"></i>
+                            <span>Contains at least one special character</span>
+                        </div>
+                        <div class="validation-item" data-requirement="match">
+                            <i class="fas fa-times validation-icon invalid-icon"></i>
+                            <span>Passwords match</span>
+                        </div>
+                    </div>
+
                     <!-- Password Strength Meter -->
-                    <div class="relative mb-4">
-                        <div class="password-strength bg-red-500" id="passwordStrength"></div>
+                    <div class="relative mt-4 bg-gray-200 rounded-full">
+                        <div class="password-strength bg-red-500 rounded-full" id="passwordStrength"></div>
                     </div>
 
                     <!-- Doctor-specific fields -->
@@ -193,12 +238,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const doctorFields = document.getElementById('doctor-fields');
     const adminFields = document.getElementById('admin-fields');
     const password1 = document.getElementById('password1');
+    const password2 = document.getElementById('password2');
     const passwordStrength = document.getElementById('passwordStrength');
+    const form = document.getElementById('signupForm');
 
     const illustrations = {
         patient: document.getElementById('patient-illustration'),
         doctor: document.getElementById('doctor-illustration'),
         admin: document.getElementById('admin-illustration')
+    };
+
+    // Password validation requirements
+    const requirements = {
+        length: password => password.length >= 8,
+        uppercase: password => /[A-Z]/.test(password),
+        lowercase: password => /[a-z]/.test(password),
+        number: password => /[0-9]/.test(password),
+        special: password => /[!@#$%^&*(),.?":{}|<>]/.test(password),
+        match: (password, confirmPassword) => password === confirmPassword && password !== ''
     };
 
     // Show/Hide fields and illustrations based on user type
@@ -224,30 +281,85 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Password strength meter
-    password1.addEventListener('input', function() {
-        const password = this.value;
-        const strength = calculatePasswordStrength(password);
-        passwordStrength.style.width = `${strength * 20}%`;
-        passwordStrength.className = `password-strength ${getStrengthColor(strength)}`;
+    function updateValidationUI(requirement, isValid) {
+        const validationItem = document.querySelector(`[data-requirement="${requirement}"]`);
+        const icon = validationItem.querySelector('.validation-icon');
+        
+        // Remove all possible classes first
+        icon.classList.remove('fa-times', 'fa-check', 'valid-icon', 'invalid-icon');
+        
+        // Add appropriate classes based on validation
+        if (isValid) {
+            icon.classList.add('fa-check', 'valid-icon');
+        } else {
+            icon.classList.add('fa-times', 'invalid-icon');
+        }
+    }
+
+    function validatePassword() {
+        const password = password1.value;
+        const confirmPassword = password2.value;
+        let validCount = 0;
+        
+        // Check each requirement
+        for (const [requirement, checkFn] of Object.entries(requirements)) {
+            const isValid = requirement === 'match' 
+                ? checkFn(password, confirmPassword)
+                : checkFn(password);
+                
+            updateValidationUI(requirement, isValid);
+            if (isValid) validCount++;
+        }
+
+        // Update password strength meter
+        const strengthPercentage = (validCount / Object.keys(requirements).length) * 100;
+        passwordStrength.style.width = `${strengthPercentage}%`;
+        
+        // Update strength meter color
+        if (strengthPercentage <= 33) {
+            passwordStrength.className = 'password-strength bg-red-500 rounded-full';
+        } else if (strengthPercentage <= 66) {
+            passwordStrength.className = 'password-strength bg-yellow-500 rounded-full';
+        } else {
+            passwordStrength.className = 'password-strength bg-green-500 rounded-full';
+        }
+
+        return validCount === Object.keys(requirements).length;
+    }
+
+    // Real-time validation
+    password1.addEventListener('input', validatePassword);
+    password2.addEventListener('input', validatePassword);
+
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        if (!validatePassword()) {
+            e.preventDefault();
+            // Show error message in a more user-friendly way
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4';
+            errorDiv.role = 'alert';
+            errorDiv.innerHTML = `
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline"> Please ensure all password requirements are met before submitting.</span>
+            `;
+            
+            // Remove any existing error messages
+            const existingError = form.querySelector('[role="alert"]');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // Add new error message
+            form.insertBefore(errorDiv, form.firstChild);
+            
+            // Scroll to error message
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
 
-    function calculatePasswordStrength(password) {
-        const criteria = [
-            password.length > 8,
-            /[A-Z]/.test(password),
-            /[a-z]/.test(password),
-            /[0-9]/.test(password),
-            /[^A-Za-z0-9]/.test(password)
-        ];
-        return criteria.filter(Boolean).length;
-    }
-
-    function getStrengthColor(strength) {
-        if (strength < 2) return 'bg-red-500';
-        if (strength < 4) return 'bg-yellow-500';
-        return 'bg-green-500';
-    }
+    // Initialize password validation on page load
+    validatePassword();
 });
 </script>
 {% endblock %}
