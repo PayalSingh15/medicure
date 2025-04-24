@@ -58,7 +58,17 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 
+# Site URL configuration
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
 
+# Add this to your settings.py
+
+# Site URL configuration - determine based on environment
+if DEBUG:
+    SITE_URL = 'http://127.0.0.1:8000'
+else:
+    # Use the first allowed host as the production URL
+    SITE_URL = f"https://{ALLOWED_HOSTS[0]}" if ALLOWED_HOSTS else 'http://127.0.0.1:8000'
 
 INSTALLED_APPS = [
     'django.contrib.admin',

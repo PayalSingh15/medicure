@@ -39,7 +39,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.is_verified = False
         user.generate_verification_token()  # Generate token with expiry
 
-        verification_link = f"http://127.0.0.1:8000/users/verify-email/{user.verification_token}/"
+        verification_link = f"{settings.SITE_URL}/users/verify-email/{user.verification_token}/"
     
         send_mail(
             "Verify your email",
