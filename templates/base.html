@@ -46,6 +46,7 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 
     <style>
+        
         .gradient-bg {
             background: linear-gradient(135deg, #0dfd45 0%, #0099ff 100%);
         }
@@ -73,7 +74,20 @@
             -webkit-text-fill-color: transparent; /* For older WebKit browsers */
             color: transparent; /* Standard property */
         }
+        /* Add this to your existing styles in base.html */
+    #mainNavbar {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
     </style>
+
+
+
+
+    <script
+    chatbot_id="680a1bab686b6bf9ef672137"
+    data-type="default"
+    src="https://app.thinkstack.ai/bot/thinkstackai-loader.min.js"
+    ></script>
 
     {% block extra_head %}{% endblock %}
 </head>

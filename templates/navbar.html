@@ -1,4 +1,4 @@
-<nav class="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-blue-600 to-indigo-700 shadow-2xl">
+<nav class="fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-blue-600 to-indigo-700 shadow-2xl transition-all duration-300" id="mainNavbar">
     <div class="container mx-auto px-4 py-3 flex items-center justify-between">
         <!-- Logo/Brand -->
         <div class="flex items-center">
@@ -189,11 +189,76 @@
 </nav>
 
 <script>
+    // Mobile menu functionality (your existing code)
     document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
         document.getElementById('mobile-menu').classList.toggle('hidden');
     });
 
     document.getElementById('mobile-menu-close').addEventListener('click', function() {
         document.getElementById('mobile-menu').classList.add('hidden');
+    });
+
+    // Dynamic navbar visibility code
+    document.addEventListener('DOMContentLoaded', function() {
+        const navbar = document.getElementById('mainNavbar');
+        let lastScrollTop = 0;
+        let isHovering = false;
+        const scrollThreshold = 100; // How many pixels to scroll before hiding navbar
+        
+        // Add padding to the body equal to navbar height to prevent content jump
+        const navbarHeight = navbar.offsetHeight;
+        document.body.style.paddingTop = navbarHeight + 'px';
+        
+        // Function to control navbar visibility
+        function updateNavbarVisibility() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // Show navbar if at top, hovering, or scrolling up
+            if (scrollTop <= scrollThreshold || isHovering || scrollTop < lastScrollTop) {
+                navbar.style.transform = 'translateY(0)';
+                navbar.style.opacity = '1';
+            } 
+            // Hide navbar when scrolling down past threshold
+            else if (scrollTop > lastScrollTop && scrollTop > scrollThreshold) {
+                navbar.style.transform = 'translateY(-100%)';
+                navbar.style.opacity = '0';
+            }
+            
+            lastScrollTop = scrollTop;
+        }
+        
+        // Event listeners
+        window.addEventListener('scroll', updateNavbarVisibility);
+        
+        // Show navbar on hover at top of page
+        navbar.addEventListener('mouseenter', function() {
+            isHovering = true;
+            updateNavbarVisibility();
+        });
+        
+        navbar.addEventListener('mouseleave', function() {
+            isHovering = false;
+            updateNavbarVisibility();
+        });
+
+        // Add hover detection for top area of page
+        const topHoverArea = document.createElement('div');
+        topHoverArea.style.position = 'fixed';
+        topHoverArea.style.top = '0';
+        topHoverArea.style.left = '0';
+        topHoverArea.style.width = '100%';
+        topHoverArea.style.height = '10px';
+        topHoverArea.style.zIndex = '49';
+        document.body.appendChild(topHoverArea);
+
+        topHoverArea.addEventListener('mouseenter', function() {
+            isHovering = true;
+            updateNavbarVisibility();
+        });
+
+        topHoverArea.addEventListener('mouseleave', function() {
+            isHovering = false;
+            updateNavbarVisibility();
+        });
     });
 </script>

@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-20 bg-gradient-to-b from-white to-gray-50 min-h-screen">
+  <div class="max-w-6xl mx-auto px-6">
+    <h2 class="text-5xl font-extrabold text-center text-blue-600 mb-12">
+      <span class="inline-block animate-title">Frequently Asked Questions</span>
+    </h2>
+
+    <!-- Tabs -->
+    <div class="flex justify-center mb-12">
+      <div id="tabs" class="inline-flex rounded-full overflow-hidden border border-blue-200 shadow-md">
+        <button data-tab="0" class="tab-btn px-8 py-3 text-lg font-medium text-blue-600 hover:bg-blue-50 transition-all duration-300">
+          General
+        </button>
+        <button data-tab="1" class="tab-btn px-8 py-3 text-lg font-medium text-blue-600 hover:bg-blue-50 transition-all duration-300">
+          AI & Prediction
+        </button>
+        <button data-tab="2" class="tab-btn px-8 py-3 text-lg font-medium text-blue-600 hover:bg-blue-50 transition-all duration-300">
+          Subscriptions
+        </button>
+        <button data-tab="3" class="tab-btn px-8 py-3 text-lg font-medium text-blue-600 hover:bg-blue-50 transition-all duration-300">
+          Doctor Consultations
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Panels -->
+    <div class="relative min-h-[500px]">
+      <!-- General - First panel visible by default -->
+      <div class="tab-panel space-y-6 w-full transition-all duration-500">
+        <!-- General FAQs -->
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>What is MediCure?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">MediCure is an AI-powered healthcare platform that helps users track health, predict diseases, get diet/exercise plans, and consult with doctors.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Is MediCure a mobile app or web app?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Currently it's a responsive web platform, accessible from any browser.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Is MediCure free to use?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Basic browsing is free, but features like prediction and doctor consultation require a subscription.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>How do I update my profile?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Go to Dashboard > Profile to edit health info, allergies, and preferences.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>What kind of recommendations can I get?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">You'll receive custom diet, exercise, and lifestyle tips based on your profile.</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- AI & Prediction -->
+      <div class="tab-panel space-y-6 absolute top-0 left-0 w-full transition-all duration-500 opacity-0 invisible">
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>How does AI disease prediction work?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Our ML models analyze symptoms selected by you and return likely diseases with a confidence score.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>What diseases can it predict?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">It covers over 40+ conditions including diabetes, PCOS, obesity, anxiety, and more.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Do I need to enter symptoms manually?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. You select symptoms using checkboxes. The model needs at least 1.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Is the prediction accurate?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">While not a replacement for a diagnosis, it's trained on medical datasets for strong accuracy.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Can I use prediction multiple times?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes, you can access the feature anytime while your subscription is active.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Is mental health included?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes! MediCure has dedicated prediction for PCOS, obesity, and mental health issues.</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Subscriptions -->
+      <div class="tab-panel space-y-6 absolute top-0 left-0 w-full transition-all duration-500 opacity-0 invisible">
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Do I need to subscribe to use features?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. MediCure requires a subscription for predictions, plans, and consultations.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Are there multiple subscription plans?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. Choose between monthly and yearly options.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Can I cancel a subscription?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. You can cancel anytime before expiry. There's no refund as there's no auto-renewal.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Are there one-time payments?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">No. You must choose a plan. No single-use access is offered.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Is my payment info safe?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. Payments are securely handled via Razorpay (Test Mode for now).</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Doctor Consultations -->
+      <div class="tab-panel space-y-6 absolute top-0 left-0 w-full transition-all duration-500 opacity-0 invisible">
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Are doctors verified?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Absolutely. Doctors must register and get approved by admins manually.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>How do I book a consultation?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Go to the Doctor section and request an appointment. Doctors must accept it.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Can I cancel an appointment?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. You can cancel if the doctor hasn't yet accepted.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Can I reschedule a consultation?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">No rescheduling is allowed. You must cancel and rebook.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Do you support video calls?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">No. MediCure is an offline booking platform only.</div>
+          </div>
+        </div>
+        
+        <div class="faq-item border border-gray-200 rounded-xl shadow-sm transition-all duration-300 hover:shadow-lg bg-white overflow-hidden">
+          <button class="w-full px-8 py-5 flex justify-between items-center text-left text-lg font-semibold text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50 rounded-xl faq-toggle">
+            <span>Will I get reminders?</span>
+            <svg class="w-6 h-6 transform transition-transform duration-500 text-blue-500 flex-shrink-0 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="faq-answer px-8 overflow-hidden max-h-0 transition-all duration-500 ease-in-out text-gray-600 leading-relaxed">
+            <div class="answer-content py-5">Yes. You'll receive reminders and confirmation updates via email or in your dashboard.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Tab switching functionality
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    
+    function switchTab(index) {
+      // Update tab buttons
+      tabBtns.forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add('bg-blue-50', 'font-semibold');
+          btn.classList.remove('font-medium');
+        } else {
+          btn.classList.remove('bg-blue-50', 'font-semibold');
+          btn.classList.add('font-medium');
+        }
+      });
+      
+      // Update panels
+      panels.forEach((panel, i) => {
+        if (i === index) {
+          panel.classList.remove('absolute', 'opacity-0', 'invisible');
+          panel.classList.add('relative', 'opacity-100');
+        } else {
+          panel.classList.add('absolute', 'opacity-0', 'invisible');
+          panel.classList.remove('relative', 'opacity-100');
+        }
+      });
+    }
+    
+    // Add click handlers for tabs
+    tabBtns.forEach((btn, index) => {
+      btn.addEventListener('click', () => switchTab(index));
+    });
+    
+    // Initialize first tab
+    setTimeout(() => switchTab(0), 50);
+    
+    // FAQ toggle functionality
+    document.querySelectorAll('.faq-toggle').forEach(btn => {
+      const answer = btn.nextElementSibling;
+      const answerContent = answer.querySelector('.answer-content');
+      const answerHeight = answerContent.scrollHeight;
+      
+      btn.addEventListener('click', () => {
+        const faqItem = btn.closest('.faq-item');
+        const icon = btn.querySelector('svg');
+        
+        // Toggle active class
+        faqItem.classList.toggle('active');
+        
+        if (faqItem.classList.contains('active')) {
+          // Open FAQ
+          answer.style.maxHeight = answerHeight + 'px';
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          // Close FAQ
+          answer.style.maxHeight = '0';
+          icon.style.transform = 'rotate(0)';
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .tab-panel {
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .faq-answer {
+    transition: max-height 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .faq-item.active {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
+  }
+  
+  .animate-title {
+    animation: fadeInUp 0.8s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+{% endblock %}

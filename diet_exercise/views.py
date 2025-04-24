@@ -167,19 +167,9 @@ class GeneratePlansView(View):
         exercise_service = ExerciseService()
         exercise_data = exercise_service.get_exercises_by_category(user_data)
     
-        if diet_data and exercise_data:
-            diet_plan = DietPlan.objects.create(
-                user=request.user,
-                bmi_category=user_data['bmi_category'],
-                goal=user_data['goal'],
-                daily_calories=diet_data['daily_calories'],
-                breakfast=json.dumps(diet_data['breakfast']),
-                lunch=json.dumps(diet_data['lunch']),
-                dinner=json.dumps(diet_data['dinner']),
-                snacks=json.dumps(diet_data['snacks'])
-            )
-
-            exercise_plan = ExercisePlan.objects.create(
+        if exercise_data:
+        # Always save exercise plan if available
+            ExercisePlan.objects.create(
                 user=request.user,
                 bmi_category=user_data['bmi_category'],
                 goal=user_data['goal'],
@@ -187,9 +177,23 @@ class GeneratePlansView(View):
                 total_duration=exercise_data['total_duration']
             )
 
+            if diet_data:
+                DietPlan.objects.create(
+                    user=request.user,
+                    bmi_category=user_data['bmi_category'],
+                    goal=user_data['goal'],
+                    daily_calories=diet_data['daily_calories'],
+                    breakfast=json.dumps(diet_data['breakfast']),
+                    lunch=json.dumps(diet_data['lunch']),
+                    dinner=json.dumps(diet_data['dinner']),
+                    snacks=json.dumps(diet_data['snacks'])
+                )
+            else:
+                messages.warning(request, "⚠️ Diet plan could not be generated due to API limits. Exercise plan is shown below.")
+
             return redirect('diet_exercise:plan-results')
         else:
-            messages.error(request, "Failed to generate plans. Please try again.")
+            messages.error(request, "Failed to generate any plan. Please try again later.")
             return redirect('diet_exercise:health-profile')
 
     def _calculate_bmi_category(self, weight, height):

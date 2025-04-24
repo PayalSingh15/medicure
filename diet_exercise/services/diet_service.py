@@ -3,6 +3,7 @@ import requests
 from typing import Dict, List
 from django.conf import settings
 from ..constants.nutrition_data import VITAMIN_DEFICIENCIES, ACTIVITY_LEVELS
+from django.conf import settings
 
 # In diet_service.py and exercise_service.py
 import logging
@@ -12,8 +13,16 @@ logger = logging.getLogger(__name__)
 
 class DietService:
     def __init__(self):
-        self.api_key = settings.SPOONACULAR_API_KEY
+        self.api_keys = [
+            settings.SPOONACULAR_API_KEY,
+            getattr(settings, 'SPOON_EXTRA', None),
+            getattr(settings, 'SPOON2_EXTRA', None),
+            getattr(settings, 'SPOON3_EXTRAA', None)
+        ]
+        self.api_keys = [key for key in self.api_keys if key]  # remove any None
         self.base_url = "https://api.spoonacular.com"
+        self.api_key = self._get_working_api_key()
+
 
         # Add this new method at the start of the class
     def test_api_connection(self):
@@ -79,6 +88,20 @@ class DietService:
                 'instructions': recipe_info.get('analyzedInstructions', [])
             }
         return None
+    
+
+    def _get_working_api_key(self):
+        for key in self.api_keys:
+            try:
+                test_url = f"{self.base_url}/recipes/complexSearch"
+                params = {'apiKey': key, 'number': 1}
+                response = requests.get(test_url, params=params)
+                if response.status_code == 200:
+                    return key
+            except Exception as e:
+                logger.error(f"Error testing Spoonacular key: {str(e)}")
+        return None
+    
 
     def get_meal_plan(self, user_data: Dict) -> Dict:
         """Generate a complete meal plan based on user data"""
@@ -86,9 +109,11 @@ class DietService:
             logger.debug(f"Starting meal plan generation with user data: {user_data}")
             
             # Check API connection first
-            if not self.test_api_connection():
-                logger.error("API connection test failed")
+            api_key = self._get_working_api_key()
+            if not api_key:
+                logger.error("No working Spoonacular API key found.")
                 return None
+
             daily_calories = self.calculate_daily_calories(
                 weight=user_data['weight'],
                 height=user_data['height'],
@@ -125,7 +150,7 @@ class DietService:
                     'apiKey': self.api_key,
                     'minCalories': calories - 50,
                     'maxCalories': calories + 50,
-                    'number': 3,
+                    'number': 1,
                     'type': meal_type,
                     'addRecipeInformation': True,
                     'fillIngredients': True
