@@ -59,19 +59,17 @@ CSRF_TRUSTED_ORIGINS = [
 
 
 # Site URL configuration
+# settings.py
 SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
 
-# Add this to your settings.py
-
-# Site URL configuration - determine based on environment
 if DEBUG:
     SITE_URL = 'http://127.0.0.1:8000'
 else:
-    # Use the first allowed host with a fallback
     try:
-        SITE_URL = f"https://{ALLOWED_HOSTS[0]}" if ALLOWED_HOSTS else 'https://medicure-pig9.onrender.com'
+        SITE_URL = os.environ.get("SITE_URL") or f"https://{ALLOWED_HOSTS[0]}"
     except Exception:
         SITE_URL = 'https://medicure-pig9.onrender.com'
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',

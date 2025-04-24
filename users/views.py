@@ -119,7 +119,7 @@ def resend_verification_email(request):
 
             user.generate_verification_token()
             user.refresh_from_db()
-            verification_link = f"http://127.0.0.1:8000/users/verify-email/{user.verification_token}/"
+            verification_link = f"{settings.SITE_URL}/users/verify-email/{user.verification_token}/"
             
             send_mail(
                 "Resend: Verify your email",
@@ -212,7 +212,7 @@ class SignUpView(CreateView):
         user.generate_verification_token()
         user.refresh_from_db()
 
-        verification_link = f"http://127.0.0.1:8000/users/verify-email/{user.verification_token}/"
+        verification_link = f"{settings.SITE_URL}/users/verify-email/{user.verification_token}/"
         send_mail(
             "Verify Your Email",
             f"Click the link to verify your email (valid for 10 minutes): {verification_link}",
@@ -305,7 +305,7 @@ def send_password_reset_email(request):
             user = User.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            reset_link = f"http://127.0.0.1:8000/users/reset-password/{uid}/{token}/"
+            reset_link = f"{settings.SITE_URL}/users/reset-password/{uid}/{token}/"
 
             send_mail(
                 "Reset Your Password",
