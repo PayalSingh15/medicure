@@ -67,8 +67,11 @@ SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
 if DEBUG:
     SITE_URL = 'http://127.0.0.1:8000'
 else:
-    # Use the first allowed host as the production URL
-    SITE_URL = f"https://{ALLOWED_HOSTS[0]}" if ALLOWED_HOSTS else 'http://127.0.0.1:8000'
+    # Use the first allowed host with a fallback
+    try:
+        SITE_URL = f"https://{ALLOWED_HOSTS[0]}" if ALLOWED_HOSTS else 'https://medicure-pig9.onrender.com'
+    except Exception:
+        SITE_URL = 'https://medicure-pig9.onrender.com'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
