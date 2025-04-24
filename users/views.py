@@ -228,6 +228,13 @@ class SignUpView(CreateView):
             for error in errors:
                 messages.error(self.request, f"{field}: {error}")
         return super().form_invalid(form)
+    
+@login_required
+def admin_user_detail_view(request, user_id):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied. Admin privileges required.")
+        return redirect('admin_dashboard')
+    return render(request, "admin/user_detail.html")    
 
 @login_required
 def dashboard_view(request):
@@ -466,5 +473,69 @@ class DoctorDetailView(APIView):
         except DoctorProfile.DoesNotExist:
             return Response(
                 {"error": "Doctor not found or not available"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+    
+
+
+# Add to users/views.py
+class UserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            user = CustomUser.objects.get(id=user_id)
+            
+            # Check if user is doctor
+            doctor_profile = None
+            if user.is_doctor:
+                try:
+                    doctor_profile = DoctorProfile.objects.get(user=user)
+                    doctor_data = {
+                        'specialization': doctor_profile.specialization,
+                        'license_number': doctor_profile.license_number,
+                        'experience': doctor_profile.experience,
+                        'is_approved': doctor_profile.is_approved
+                    }
+                except DoctorProfile.DoesNotExist:
+                    doctor_data = None
+            else:
+                doctor_data = None
+            
+            # Prepare user data
+            user_data = {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'is_active': user.is_active,
+                'date_joined': user.date_joined,
+                'last_login': user.last_login,
+                'is_doctor': user.is_doctor,
+                'is_patient': user.is_patient,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser,
+                'is_verified': user.is_verified,
+                'doctor_profile': doctor_data
+            }
+            
+            # Get subscription data if exists
+            try:
+                subscription = Subscription.objects.filter(user=user).order_by('-created_at').first()
+                if subscription:
+                    user_data['subscription'] = {
+                        'plan': subscription.plan,
+                        'status': subscription.payment_status,
+                        'created_at': subscription.created_at,
+                        'expires_at': subscription.expires_at
+                    }
+            except:
+                pass
+                
+            return Response(user_data)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "User not found"},
                 status=status.HTTP_404_NOT_FOUND
             )

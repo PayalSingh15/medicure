@@ -69,116 +69,117 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const usersGrid = document.getElementById('usersGrid');
-    const searchInput = document.getElementById('searchInput');
-    const roleFilter = document.getElementById('roleFilter');
-
-    let allUsers = []; // Store all users globally
-
-    async function fetchUsers() {
-        try {
-            const response = await fetch("/doctors/api/users/list/");
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            allUsers = await response.json();
-            console.log('Fetched users data:', allUsers); // Debug log
-            
-            renderUsers(allUsers);
-        } catch (error) {
-            console.error("Error fetching users:", error);
-            usersGrid.innerHTML = `
-                <div class="col-span-full text-center text-red-500">
-                    Error loading users. Please try again. ${error.message}
-                </div>
-            `;
-        }
-    }
-
-    function renderUsers(users) {
-        if (!users || users.length === 0) {
-            usersGrid.innerHTML = `
-                <div class="col-span-full text-center text-gray-500">
-                    No users found.
-                </div>
-            `;
-            return;
-        }
-
-        usersGrid.innerHTML = users.map(user => `
-            <div class="user-card p-6 relative" 
-                 data-name="${user.username}" 
-                 data-email="${user.email}" 
-                 data-role="${user.role}">
-                <div class="flex items-center mb-4">
-                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-                        <span class="text-blue-600 font-bold">
-                            ${user.username ? user.username.charAt(0).toUpperCase() : 'U'}
-                        </span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold">${user.username || 'N/A'}</h3>
-                        <p class="text-gray-500">${user.email || 'N/A'}</p>
-                    </div>
-                </div>
-                
-                <span class="status-badge ${
-                    user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 
-                    user.role === 'doctor' ? 'bg-green-100 text-green-800' : 
-                    'bg-blue-100 text-blue-800'
-                }">
-                    ${user.role || 'N/A'}
-                </span>
-                
-                <div class="mt-4 flex justify-between items-center">
-                    <button 
-                        onclick="viewUserDetails(${user.id})" 
-                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                    >
-                        View Details
-                    </button>
-                    <div class="flex space-x-2">
-                        <button class="text-green-500 hover:text-green-700">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    function filterUsers() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedRole = roleFilter.value.toLowerCase();
-
-        const filteredUsers = allUsers.filter(user => {
-            const matchesSearch = 
-                user.username.toLowerCase().includes(searchTerm) || 
-                user.email.toLowerCase().includes(searchTerm);
-            
-            const matchesRole = selectedRole === '' || user.role.toLowerCase() === selectedRole;
-            
-            return matchesSearch && matchesRole;
-        });
-
-        renderUsers(filteredUsers);
-    }
-
+    // Define viewUserDetails function in the global scope
     function viewUserDetails(userId) {
-        window.location.href = `/doctors/api/users/details/${userId}/`;
+        window.location.href = `/users/admin/users/details/${userId}/`;
     }
-
-    // Add event listeners for search and filter
-    searchInput.addEventListener('input', filterUsers);
-    roleFilter.addEventListener('change', filterUsers);
-
-    // Initial fetch
-    fetchUsers();
-});
-</script>
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const usersGrid = document.getElementById('usersGrid');
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+    
+        let allUsers = []; // Store all users globally
+    
+        async function fetchUsers() {
+            try {
+                const response = await fetch("/doctors/api/users/list/");
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                allUsers = await response.json();
+                console.log('Fetched users data:', allUsers); // Debug log
+                
+                renderUsers(allUsers);
+            } catch (error) {
+                console.error("Error fetching users:", error);
+                usersGrid.innerHTML = `
+                    <div class="col-span-full text-center text-red-500">
+                        Error loading users. Please try again. ${error.message}
+                    </div>
+                `;
+            }
+        }
+    
+        function renderUsers(users) {
+            if (!users || users.length === 0) {
+                usersGrid.innerHTML = `
+                    <div class="col-span-full text-center text-gray-500">
+                        No users found.
+                    </div>
+                `;
+                return;
+            }
+    
+            usersGrid.innerHTML = users.map(user => `
+                <div class="user-card p-6 relative" 
+                     data-name="${user.username}" 
+                     data-email="${user.email}" 
+                     data-role="${user.role}">
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                            <span class="text-blue-600 font-bold">
+                                ${user.username ? user.username.charAt(0).toUpperCase() : 'U'}
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold">${user.username || 'N/A'}</h3>
+                            <p class="text-gray-500">${user.email || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <span class="status-badge ${
+                        user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 
+                        user.role === 'doctor' ? 'bg-green-100 text-green-800' : 
+                        'bg-blue-100 text-blue-800'
+                    }">
+                        ${user.role || 'N/A'}
+                    </span>
+                    
+                    <div class="mt-4 flex justify-between items-center">
+                        <button 
+                            onclick="viewUserDetails(${user.id})" 
+                            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+                        >
+                            View Details
+                        </button>
+                        <div class="flex space-x-2">
+                            <button class="text-green-500 hover:text-green-700">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    
+        function filterUsers() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedRole = roleFilter.value.toLowerCase();
+    
+            const filteredUsers = allUsers.filter(user => {
+                const matchesSearch = 
+                    user.username.toLowerCase().includes(searchTerm) || 
+                    user.email.toLowerCase().includes(searchTerm);
+                
+                const matchesRole = selectedRole === '' || user.role.toLowerCase() === selectedRole;
+                
+                return matchesSearch && matchesRole;
+            });
+    
+            renderUsers(filteredUsers);
+        }
+    
+        // Add event listeners for search and filter
+        searchInput.addEventListener('input', filterUsers);
+        roleFilter.addEventListener('change', filterUsers);
+    
+        // Initial fetch
+        fetchUsers();
+    });
+    </script>
 {% endblock %}

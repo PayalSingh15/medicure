@@ -8,6 +8,8 @@ from .views import dashboard_view
 from .views import profile_view
 from .views import admin_profile_view
 from .views import UserLoginView
+from .views import UserDetailView, admin_user_detail_view
+
 from . import views
 from django.views.generic import TemplateView
 from .views import logout_view, admin_doctor_approvals, admin_user_list
@@ -38,7 +40,8 @@ urlpatterns = [
     path('admin/profile/', admin_profile_view, name='admin_profile'),
 
     
-    
+    path('api/details/<int:user_id>/', UserDetailView.as_view(), name='user_detail_api'),
+path('admin/users/details/<int:user_id>/', admin_user_detail_view, name='admin_user_detail'),
     # Template view for doctors list
     
 path('doctors/api/<int:doctor_id>/', views.DoctorDetailView.as_view(), name='doctor_detail_api'),

@@ -1,0 +1,227 @@
+{% extends 'users/admin_sidebar.html' %}
+
+{% block page_title %}User Details{% endblock %}
+
+{% block dashboard_content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold">User Details</h1>
+        <a href="{% url 'admin_user_list' %}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+            Back to User List
+        </a>
+    </div>
+
+    <div id="userDetails" class="bg-white rounded-lg shadow-md p-6">
+        <div class="text-center mb-6">
+            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="text-blue-600 text-4xl font-bold" id="userInitial"></span>
+            </div>
+            <h2 class="text-2xl font-bold mb-1" id="userName">Loading...</h2>
+            <p class="text-gray-600" id="userEmail"></p>
+            <span id="userRole" class="inline-block px-3 py-1 rounded-full text-sm font-semibold mt-2"></span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+                <div class="card-section">
+                    <h3 class="text-lg font-semibold border-b pb-2 mb-3">Account Information</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">User ID:</span>
+                            <span id="userId" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span id="userStatus" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Email Verified:</span>
+                            <span id="userVerified" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Joined Date:</span>
+                            <span id="userJoined" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Last Login:</span>
+                            <span id="userLastLogin" class="font-medium"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div id="doctorSection" class="card-section hidden">
+                    <h3 class="text-lg font-semibold border-b pb-2 mb-3">Doctor Information</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Specialization:</span>
+                            <span id="doctorSpecialization" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">License Number:</span>
+                            <span id="doctorLicense" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Experience:</span>
+                            <span id="doctorExperience" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Approval Status:</span>
+                            <span id="doctorApproved" class="font-medium"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="subscriptionSection" class="card-section hidden">
+                    <h3 class="text-lg font-semibold border-b pb-2 mb-3">Subscription Information</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Plan:</span>
+                            <span id="subscriptionPlan" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Status:</span>
+                            <span id="subscriptionStatus" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Start Date:</span>
+                            <span id="subscriptionStart" class="font-medium"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Expiry Date:</span>
+                            <span id="subscriptionExpiry" class="font-medium"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 flex justify-center space-x-4">
+            <button id="editUserBtn" class="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">
+                Edit User
+            </button>
+            <button id="resetPasswordBtn" class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600">
+                Reset Password
+            </button>
+            <button id="deleteUserBtn" class="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">
+                Delete User
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Extract user ID from URL
+    const urlParts = window.location.pathname.split('/');
+    const userId = urlParts[urlParts.length - 2]; // Get the ID from URL
+
+    // Fetch user details
+    async function fetchUserDetails() {
+        try {
+            const response = await fetch(`/users/api/details/${userId}/`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            
+            const userData = await response.json();
+            console.log('User data:', userData);
+            
+            // Populate user information
+            document.getElementById('userInitial').textContent = userData.username ? userData.username.charAt(0).toUpperCase() : 'U';
+            document.getElementById('userName').textContent = `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || userData.username;
+            document.getElementById('userEmail').textContent = userData.email;
+            
+            // Set role badge
+            const roleElement = document.getElementById('userRole');
+            if (userData.is_superuser) {
+                roleElement.textContent = 'Admin';
+                roleElement.classList.add('bg-purple-100', 'text-purple-800');
+            } else if (userData.is_doctor) {
+                roleElement.textContent = 'Doctor';
+                roleElement.classList.add('bg-green-100', 'text-green-800');
+            } else {
+                roleElement.textContent = 'Patient';
+                roleElement.classList.add('bg-blue-100', 'text-blue-800');
+            }
+            
+            // Account information
+            document.getElementById('userId').textContent = userData.id;
+            document.getElementById('userStatus').textContent = userData.is_active ? 'Active' : 'Inactive';
+            document.getElementById('userVerified').textContent = userData.is_verified ? 'Verified' : 'Not Verified';
+            document.getElementById('userJoined').textContent = new Date(userData.date_joined).toLocaleDateString();
+            document.getElementById('userLastLogin').textContent = userData.last_login ? new Date(userData.last_login).toLocaleDateString() : 'Never';
+            
+            // Doctor information if applicable
+            if (userData.is_doctor && userData.doctor_profile) {
+                document.getElementById('doctorSection').classList.remove('hidden');
+                document.getElementById('doctorSpecialization').textContent = userData.doctor_profile.specialization || 'Not specified';
+                document.getElementById('doctorLicense').textContent = userData.doctor_profile.license_number || 'Not specified';
+                document.getElementById('doctorExperience').textContent = userData.doctor_profile.experience + ' years' || 'Not specified';
+                
+                const approvalStatus = document.getElementById('doctorApproved');
+                if (userData.doctor_profile.is_approved) {
+                    approvalStatus.textContent = 'Approved';
+                    approvalStatus.classList.add('text-green-600');
+                } else {
+                    approvalStatus.textContent = 'Pending';
+                    approvalStatus.classList.add('text-yellow-600');
+                }
+            }
+            
+            // Subscription information if available
+            if (userData.subscription) {
+                document.getElementById('subscriptionSection').classList.remove('hidden');
+                document.getElementById('subscriptionPlan').textContent = userData.subscription.plan || 'No Plan';
+                
+                const subStatus = document.getElementById('subscriptionStatus');
+                if (userData.subscription.status) {
+                    subStatus.textContent = 'Active';
+                    subStatus.classList.add('text-green-600');
+                } else {
+                    subStatus.textContent = 'Inactive';
+                    subStatus.classList.add('text-red-600');
+                }
+                
+                document.getElementById('subscriptionStart').textContent = new Date(userData.subscription.created_at).toLocaleDateString();
+                document.getElementById('subscriptionExpiry').textContent = new Date(userData.subscription.expires_at).toLocaleDateString();
+            }
+            
+        } catch (error) {
+            console.error('Error fetching user details:', error);
+            document.getElementById('userDetails').innerHTML = `
+                <div class="text-center text-red-500 py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                    <h2 class="text-xl font-bold">Error Loading User Data</h2>
+                    <p>${error.message}</p>
+                    <a href="{% url 'admin_user_list' %}" class="inline-block mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                        Return to User List
+                    </a>
+                </div>
+            `;
+        }
+    }
+
+    // Initialize page
+    fetchUserDetails();
+    
+    // Button event handlers
+    document.getElementById('editUserBtn').addEventListener('click', function() {
+        alert('Edit functionality not implemented yet');
+    });
+    
+    document.getElementById('resetPasswordBtn').addEventListener('click', function() {
+        alert('Reset password functionality not implemented yet');
+    });
+    
+    document.getElementById('deleteUserBtn').addEventListener('click', function() {
+        const confirmDelete = confirm('Are you sure you want to delete this user? This action cannot be undone.');
+        if (confirmDelete) {
+            alert('Delete functionality not implemented yet');
+        }
+    });
+});
+</script>
+{% endblock %}
